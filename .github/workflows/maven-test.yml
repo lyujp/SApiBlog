@@ -44,5 +44,5 @@ jobs:
           echo "Running SQL script to initialize the database"
           PGPASSWORD=postgres psql -h localhost -U postgres -d sapiblog -f src/test/resources/schema.sql
 
-      - name: Run Maven tests with H2
+      - name: Run Maven tests
         run: mvn clean test
