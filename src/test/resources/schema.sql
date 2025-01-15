@@ -60,7 +60,8 @@ create table post
     cover       varchar,
     post_type   boolean,
     create_time bigint,
-    update_time bigint
+    update_time bigint,
+    summary     varchar
 );
 
 alter table post

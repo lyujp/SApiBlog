@@ -54,6 +54,14 @@ public class User {
         this.password = Arrays.toString(digest.digest());
     }
 
+    public void setPassword(String password, String salt) throws NoSuchAlgorithmException {
+        this.salt = salt;
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        digest.update(password.getBytes(StandardCharsets.UTF_8));
+        digest.update(this.salt.getBytes(StandardCharsets.UTF_8));
+        this.password = Arrays.toString(digest.digest());
+    }
+
     public void setSalt(String salt) {
     }
 

@@ -1,24 +1,19 @@
-package moe.lyu.sapiblog.entity;
+package moe.lyu.sapiblog.vo;
 
-import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
 @Data
-@TableName("post")
-public class Post {
-    @TableId(type = IdType.AUTO)
+public class PostWithoutContentVo {
     private Integer id;
     private Integer authorId;
     private String title;
-    private String content;
     private Boolean status;
     private String cover;
     private String summary;
     private Boolean postType;
-    @TableField(fill = FieldFill.INSERT)
     private Long createTime;
-    @TableField(fill = FieldFill.INSERT_UPDATE)
     private Long updateTime;
+    private String jwt;
 
     public void setStatus(Boolean status) {
         if (this.status == null) {
