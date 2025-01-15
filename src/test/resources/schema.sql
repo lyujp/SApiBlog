@@ -1,79 +1,123 @@
-create table category (
-                          id int primary key not null auto_increment,
-                          name varchar not null default 'UnTittled',
-                          uniq_name varchar not null default 'default',
-                          parent_id int not null default 0,
-                          create_time bigint,
-                          update_time bigint
+create table category
+(
+    id          serial
+        constraint category_pk
+            primary key,
+    name        varchar default 'UnTittled'::character varying not null,
+    uniq_name   varchar default 'default'::character varying   not null
+        constraint category_pk_2
+            unique,
+    parent_id   integer default 0                              not null,
+    create_time bigint,
+    update_time bigint
 );
 
-create unique index category_pk_2 on category (uniq_name);
 comment on table category is '分类';
 
-create table category_post (
-                               id int primary key not null auto_increment,
-                               post_id int not null,
-                               category_id int,
-                               create_time bigint,
-                               update_time bigint
+alter table category
+    owner to postgres;
+
+create table category_post
+(
+    id          serial
+        constraint category_post_pk
+            primary key,
+    post_id     integer not null,
+    category_id integer,
+    create_time bigint,
+    update_time bigint
 );
 
-create table setting (
-                         id int primary key not null auto_increment,
-                         k varchar not null,
-                         v varchar,
-                         option_type boolean not null default false,
-                         create_time bigint,
-                         update_time bigint
+alter table category_post
+    owner to postgres;
+
+create table setting
+(
+    id          serial
+        constraint setting_pk_2
+            primary key,
+    k           varchar               not null
+        constraint setting_pk
+            unique,
+    v           varchar,
+    option_type boolean default false not null,
+    create_time bigint,
+    update_time bigint
 );
 
-create unique index option_pk_2 on setting (k);
+alter table setting
+    owner to postgres;
 
-create table post (
-                      id int primary key not null auto_increment,
-                      author_id int not null default 0,
-                      title varchar,
-                      content text,
-                      status boolean,
-                      cover varchar,
-                      post_type boolean,
-                      create_time bigint,
-                      update_time bigint
+create table post
+(
+    id          serial
+        constraint post_pk
+            primary key,
+    author_id   integer default 0 not null,
+    title       varchar,
+    content     text,
+    status      boolean,
+    cover       varchar,
+    post_type   boolean,
+    create_time bigint,
+    update_time bigint
 );
 
-create table tag (
-                     id int primary key not null auto_increment,
-                     name varchar,
-                     uniq_name varchar,
-                     create_time bigint,
-                     update_time bigint
+alter table post
+    owner to postgres;
+
+create table tag
+(
+    id          serial
+        constraint tag_pk
+            primary key,
+    name        varchar,
+    uniq_name   varchar
+        constraint tag_pk_2
+            unique,
+    create_time bigint,
+    update_time bigint
 );
 
-create unique index tag_pk_2 on tag (uniq_name);
+alter table tag
+    owner to postgres;
 
-create table tag_post (
-                          id int primary key not null auto_increment,
-                          post_id int,
-                          tag_id int,
-                          create_time bigint,
-                          update_time bigint
+create table tag_post
+(
+    id          serial
+        constraint tag_post_pk
+            primary key,
+    post_id     integer,
+    tag_id      integer,
+    create_time bigint,
+    update_time bigint
 );
 
-create table "user" (
-                        id int primary key not null auto_increment,
-                        username varchar not null,
-                        password varchar,
-                        nickname varchar not null,
-                        avatar varchar,
-                        email varchar,
-                        phone varchar,
-                        role varchar default 'USER',
-                        jwt varchar,
-                        totp varchar,
-                        salt varchar not null,
-                        create_time bigint,
-                        update_time bigint,
-                        last_login_time bigint
+alter table tag_post
+    owner to postgres;
+
+create table "user"
+(
+    id              serial
+        constraint user_pk
+            primary key,
+    username        varchar not null
+        constraint user_pk_2
+            unique,
+    password        varchar,
+    nickname        varchar not null,
+    avatar          varchar,
+    email           varchar,
+    phone           varchar,
+    role            varchar default 'USER'::character varying,
+    jwt             varchar,
+    totp            varchar,
+    salt            varchar not null,
+    create_time     bigint,
+    update_time     bigint,
+    last_login_time bigint
 );
 
-create unique index user_pk_2 on "user" (username);
+alter table "user"
+    owner to postgres;
+
