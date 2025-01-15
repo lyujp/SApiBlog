@@ -15,29 +15,29 @@ public class CategoryControllerHandler {
 
     @ExceptionHandler(CategoryFieldNotFoundException.class)
     public Resp handleCategoryFieldNotFound(CategoryFieldNotFoundException e) {
-        return Resp.error(-400,"Category field '" + e.getMessage() + "' required not found");
+        return Resp.error(-400, "Category field '" + e.getMessage() + "' required not found");
     }
 
     @ExceptionHandler(CategoryNotFoundException.class)
     public Resp handleCategoryNotFound(CategoryNotFoundException e) {
-        return Resp.error(-400,"Category '" + e.getMessage() + "' not found");
+        return Resp.error(-400, "Category '" + e.getMessage() + "' not found");
     }
 
     @ExceptionHandler(CategoryAlreadyExistException.class)
     public Resp handleCategoryAlreadyExist(CategoryAlreadyExistException e) {
-        return Resp.error(-300,"Category '" + e.getMessage() + "' already exist");
+        return Resp.error(-300, "Category '" + e.getMessage() + "' already exist");
     }
 
     @ExceptionHandler(CategoryUnknownException.class)
     public Resp handleCategoryUnknown(CategoryUnknownException e) {
         e.printStackTrace();
-        return Resp.error(-500,"Category unknown exception");
+        return Resp.error(-500, "Category unknown exception");
     }
 
     @ExceptionHandler(JsonProcessingException.class)
     public Resp handleJsonProcessingException(JsonProcessingException e) {
         e.printStackTrace();
-        return Resp.error(-500,"Category add failed and Json processing exception");
+        return Resp.error(-500, "Category add failed and Json processing exception");
     }
 
 }

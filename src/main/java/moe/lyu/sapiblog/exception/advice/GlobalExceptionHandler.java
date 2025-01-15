@@ -1,7 +1,5 @@
 package moe.lyu.sapiblog.exception.advice;
 
-import lombok.extern.java.Log;
-import lombok.extern.slf4j.Slf4j;
 import moe.lyu.sapiblog.dto.Resp;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -12,7 +10,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NoResourceFoundException.class)
     public Resp noResourceFoundException(NoResourceFoundException e) {
-        return Resp.error(-404,"API you requested is not found");
+        return Resp.error(-404, "API you requested is not found");
     }
 
     @ExceptionHandler(value = Exception.class)

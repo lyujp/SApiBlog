@@ -3,8 +3,6 @@ package moe.lyu.sapiblog.entity;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
-import java.time.ZonedDateTime;
-
 @Data
 @TableName("category_post")
 public class CategoryPost {

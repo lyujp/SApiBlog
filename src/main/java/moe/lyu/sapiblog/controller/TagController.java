@@ -45,9 +45,9 @@ public class TagController {
 
     @PostMapping("/delete/{id}")
     public Resp detete(@PathVariable String id) throws TagNotFoundException {
-        try{
+        try {
             TagService.delete(Integer.parseInt(id));
-        }catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
             throw new TagNotFoundException(id);
         }
         return Resp.success();

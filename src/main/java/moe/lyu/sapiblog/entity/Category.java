@@ -3,12 +3,9 @@ package moe.lyu.sapiblog.entity;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
-import java.time.ZonedDateTime;
-
 @Data
 @TableName("category")
 public class Category {
-
 
 
     @TableId(type = IdType.AUTO)
@@ -22,7 +19,7 @@ public class Category {
     private Long updateTime;
 
     public void setParentId(Integer parentId) {
-        if(parentId == null){
+        if (parentId == null) {
             parentId = 0;
         }
         this.parentId = parentId;

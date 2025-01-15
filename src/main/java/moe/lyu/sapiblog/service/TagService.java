@@ -4,8 +4,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import moe.lyu.sapiblog.entity.Tag;
-import moe.lyu.sapiblog.entity.Tag;
-import moe.lyu.sapiblog.entity.mapper.TagMapper;
 import moe.lyu.sapiblog.entity.mapper.TagMapper;
 import moe.lyu.sapiblog.exception.TagAlreadyExistException;
 import moe.lyu.sapiblog.exception.TagFieldNotFoundException;
@@ -30,11 +28,11 @@ public class TagService {
         QueryWrapper<Tag> queryWrapper = new QueryWrapper<>();
         Class<Tag> TagClass = Tag.class;
         queryWrapper.ge("id", 0);
-        try{
+        try {
             TagClass.getDeclaredField(orderField);
-            if(orderByDesc){
+            if (orderByDesc) {
                 queryWrapper.orderByDesc(orderField);
-            }else{
+            } else {
                 queryWrapper.orderByAsc(orderField);
             }
         } catch (NoSuchFieldException ignored) {
@@ -47,9 +45,9 @@ public class TagService {
         QueryWrapper<Tag> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("id", id);
         Tag Tag = tagMapper.selectOne(queryWrapper);
-        if(Tag == null){
+        if (Tag == null) {
             throw new TagNotFoundException(id.toString());
-        }else {
+        } else {
             return Tag;
         }
     }
@@ -58,22 +56,22 @@ public class TagService {
         QueryWrapper<Tag> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("uniq_name", name);
         Tag Tag = tagMapper.selectOne(queryWrapper);
-        if(Tag == null){
+        if (Tag == null) {
             throw new TagNotFoundException(name);
-        }else{
+        } else {
             return Tag;
         }
     }
 
-    public Tag add(Tag Tag) throws TagAlreadyExistException,JsonProcessingException {
-        try{
+    public Tag add(Tag Tag) throws TagAlreadyExistException, JsonProcessingException {
+        try {
             int effectRows = tagMapper.insert(Tag);
-            if(effectRows == 1){
+            if (effectRows == 1) {
                 return Tag;
-            }else{
+            } else {
                 throw new TagUnknownException(new ObjectMapper().writeValueAsString(Tag));
             }
-        }catch (DuplicateKeyException e){
+        } catch (DuplicateKeyException e) {
             throw new TagAlreadyExistException(Tag.getUniqName());
         }
 
@@ -81,9 +79,9 @@ public class TagService {
 
     public Tag update(Tag Tag) throws TagNotFoundException {
         int effectRows = tagMapper.updateById(Tag);
-        if(effectRows == 1){
+        if (effectRows == 1) {
             return Tag;
-        }else{
+        } else {
             throw new TagNotFoundException(Tag.getId().toString());
         }
     }

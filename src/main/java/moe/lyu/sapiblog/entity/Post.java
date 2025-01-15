@@ -3,8 +3,6 @@ package moe.lyu.sapiblog.entity;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
-import java.time.ZonedDateTime;
-
 @Data
 @TableName("post")
 public class Post {
@@ -22,14 +20,14 @@ public class Post {
     private Long updateTime;
 
     public void setStatus(Boolean status) {
-        if(this.status == null){
+        if (this.status == null) {
             this.status = false;
         }
         this.status = status;
     }
 
     public void setPostType(Boolean postType) {
-        if(this.postType == null){
+        if (this.postType == null) {
             this.postType = false;
         }
         this.postType = postType;

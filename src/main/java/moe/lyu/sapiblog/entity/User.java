@@ -3,11 +3,9 @@ package moe.lyu.sapiblog.entity;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.UUID;
@@ -38,10 +36,14 @@ public class User {
     }
 
     public void setRole(String role) {
-        if(role == null || role.trim().equals("")) {
+        if (role == null || role.trim().equals("")) {
             role = "USER";
         }
         this.role = role;
+    }
+
+    public String getPassword() {
+        return "";
     }
 
     public void setPassword(String password) throws NoSuchAlgorithmException {
@@ -50,10 +52,6 @@ public class User {
         digest.update(password.getBytes(StandardCharsets.UTF_8));
         digest.update(this.salt.getBytes(StandardCharsets.UTF_8));
         this.password = Arrays.toString(digest.digest());
-    }
-
-    public String getPassword() {
-        return "";
     }
 
     public void setSalt(String salt) {

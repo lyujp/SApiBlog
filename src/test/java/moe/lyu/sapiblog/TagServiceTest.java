@@ -36,28 +36,32 @@ public class TagServiceTest {
     }
 
     void testSetup() {
-        try{
+        try {
             Tag test = TagService.getByUniqName("__test");
             TagService.delete(test.getId());
 
-        }catch (TagNotFoundException e){}
-        try{
+        } catch (TagNotFoundException e) {
+        }
+        try {
             Tag test = TagService.getByUniqName("__test2");
             TagService.delete(test.getId());
-        }catch (TagNotFoundException e){}
+        } catch (TagNotFoundException e) {
+        }
     }
 
 
-    void testCleanUp(){
-        try{
+    void testCleanUp() {
+        try {
             Tag test = TagService.getByUniqName("__test");
             TagService.delete(test.getId());
 
-        }catch (TagNotFoundException e){}
-        try{
+        } catch (TagNotFoundException e) {
+        }
+        try {
             Tag test = TagService.getByUniqName("__test2");
             TagService.delete(test.getId());
-        }catch (TagNotFoundException e){}
+        } catch (TagNotFoundException e) {
+        }
     }
 
     void testAdd() throws JsonProcessingException {
@@ -72,11 +76,11 @@ public class TagServiceTest {
     }
 
 
-    void testList(){
+    void testList() {
         AtomicReference<Boolean> findTestTag = new AtomicReference<>(false);
         List<Tag> result = TagService.list(true, "id");
         result.forEach(Tag -> {
-            if(Objects.equals(Tag.getId(), testTagId)){
+            if (Objects.equals(Tag.getId(), testTagId)) {
                 findTestTag.set(true);
             }
         });
@@ -86,7 +90,7 @@ public class TagServiceTest {
     }
 
 
-    void testUpdate(){
+    void testUpdate() {
         Tag Tag = new Tag();
         Tag.setId(this.testTagId);
         Tag.setName("__test2");
@@ -99,11 +103,11 @@ public class TagServiceTest {
         assertEquals("__test2", updated.getUniqName());
         Tag.setName("__test");
         Tag.setUniqName("__test");
-        Tag.setId(this.testTagId+1);
+        Tag.setId(this.testTagId + 1);
         assertThrows(TagNotFoundException.class, () -> TagService.update(Tag));
     }
 
-    void testDelete(){
+    void testDelete() {
         Boolean delete = TagService.delete(this.testTagId);
         assertTrue(delete);
         assertThrows(TagNotFoundException.class, () -> TagService.getById(this.testTagId));

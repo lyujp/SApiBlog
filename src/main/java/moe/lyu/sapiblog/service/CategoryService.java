@@ -9,14 +9,11 @@ import moe.lyu.sapiblog.exception.CategoryAlreadyExistException;
 import moe.lyu.sapiblog.exception.CategoryFieldNotFoundException;
 import moe.lyu.sapiblog.exception.CategoryNotFoundException;
 import moe.lyu.sapiblog.exception.CategoryUnknownException;
-import org.apache.tomcat.util.json.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-
-import static org.apache.logging.log4j.message.MapMessage.MapFormat.JSON;
 
 @Service
 public class CategoryService {
@@ -31,11 +28,11 @@ public class CategoryService {
         QueryWrapper<Category> queryWrapper = new QueryWrapper<>();
         Class<Category> categoryClass = Category.class;
         queryWrapper.ge("id", 0);
-        try{
+        try {
             categoryClass.getDeclaredField(orderField);
-            if(orderByDesc){
+            if (orderByDesc) {
                 queryWrapper.orderByDesc(orderField);
-            }else{
+            } else {
                 queryWrapper.orderByAsc(orderField);
             }
         } catch (NoSuchFieldException ignored) {
@@ -48,9 +45,9 @@ public class CategoryService {
         QueryWrapper<Category> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("id", id);
         Category category = categoryMapper.selectOne(queryWrapper);
-        if(category == null){
+        if (category == null) {
             throw new CategoryNotFoundException(id.toString());
-        }else {
+        } else {
             return category;
         }
     }
@@ -59,22 +56,22 @@ public class CategoryService {
         QueryWrapper<Category> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("uniq_name", name);
         Category category = categoryMapper.selectOne(queryWrapper);
-        if(category == null){
+        if (category == null) {
             throw new CategoryNotFoundException(name);
-        }else{
+        } else {
             return category;
         }
     }
 
-    public Category add(Category category) throws CategoryAlreadyExistException,JsonProcessingException {
-        try{
+    public Category add(Category category) throws CategoryAlreadyExistException, JsonProcessingException {
+        try {
             int effectRows = categoryMapper.insert(category);
-            if(effectRows == 1){
+            if (effectRows == 1) {
                 return category;
-            }else{
+            } else {
                 throw new CategoryUnknownException(new ObjectMapper().writeValueAsString(category));
             }
-        }catch (DuplicateKeyException e){
+        } catch (DuplicateKeyException e) {
             throw new CategoryAlreadyExistException(category.getUniqName());
         }
 
@@ -82,9 +79,9 @@ public class CategoryService {
 
     public Category update(Category category) throws CategoryNotFoundException {
         int effectRows = categoryMapper.updateById(category);
-        if(effectRows == 1){
+        if (effectRows == 1) {
             return category;
-        }else{
+        } else {
             throw new CategoryNotFoundException(category.getId().toString());
         }
     }

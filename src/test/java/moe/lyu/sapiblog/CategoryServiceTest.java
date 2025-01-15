@@ -5,14 +5,15 @@ import moe.lyu.sapiblog.entity.Category;
 import moe.lyu.sapiblog.exception.CategoryAlreadyExistException;
 import moe.lyu.sapiblog.exception.CategoryNotFoundException;
 import moe.lyu.sapiblog.service.CategoryService;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 public class CategoryServiceTest {
@@ -35,28 +36,32 @@ public class CategoryServiceTest {
     }
 
     void testSetup() {
-        try{
+        try {
             Category test = categoryService.getByUniqName("__test");
             categoryService.delete(test.getId());
 
-        }catch (CategoryNotFoundException e){}
-        try{
+        } catch (CategoryNotFoundException e) {
+        }
+        try {
             Category test = categoryService.getByUniqName("__test2");
             categoryService.delete(test.getId());
-        }catch (CategoryNotFoundException e){}
+        } catch (CategoryNotFoundException e) {
+        }
     }
 
 
-    void testCleanUp(){
-        try{
+    void testCleanUp() {
+        try {
             Category test = categoryService.getByUniqName("__test");
             categoryService.delete(test.getId());
 
-        }catch (CategoryNotFoundException e){}
-        try{
+        } catch (CategoryNotFoundException e) {
+        }
+        try {
             Category test = categoryService.getByUniqName("__test2");
             categoryService.delete(test.getId());
-        }catch (CategoryNotFoundException e){}
+        } catch (CategoryNotFoundException e) {
+        }
     }
 
     void testAdd() throws JsonProcessingException {
@@ -71,11 +76,11 @@ public class CategoryServiceTest {
     }
 
 
-    void testList(){
+    void testList() {
         AtomicReference<Boolean> findTestCategory = new AtomicReference<>(false);
         List<Category> result = categoryService.list(true, "id");
         result.forEach(category -> {
-            if(Objects.equals(category.getId(), testCategoryId)){
+            if (Objects.equals(category.getId(), testCategoryId)) {
                 findTestCategory.set(true);
             }
         });
@@ -85,7 +90,7 @@ public class CategoryServiceTest {
     }
 
 
-    void testUpdate(){
+    void testUpdate() {
         Category category = new Category();
         category.setId(this.testCategoryId);
         category.setName("__test2");
@@ -97,14 +102,14 @@ public class CategoryServiceTest {
         Category updated = categoryService.getById(this.testCategoryId);
         assertEquals("__test2", updated.getName());
         assertEquals("__test2", updated.getUniqName());
-        assertEquals(1,updated.getParentId());
+        assertEquals(1, updated.getParentId());
         category.setName("__test");
         category.setUniqName("__test");
-        category.setId(this.testCategoryId+1);
+        category.setId(this.testCategoryId + 1);
         assertThrows(CategoryNotFoundException.class, () -> categoryService.update(category));
     }
 
-    void testDelete(){
+    void testDelete() {
         Boolean delete = categoryService.delete(this.testCategoryId);
         assertTrue(delete);
         assertThrows(CategoryNotFoundException.class, () -> categoryService.getById(this.testCategoryId));

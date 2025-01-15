@@ -45,9 +45,9 @@ public class CategoryController {
 
     @PostMapping("/delete/{id}")
     public Resp detete(@PathVariable String id) throws CategoryNotFoundException {
-        try{
+        try {
             categoryService.delete(Integer.parseInt(id));
-        }catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
             throw new CategoryNotFoundException(id);
         }
         return Resp.success();
