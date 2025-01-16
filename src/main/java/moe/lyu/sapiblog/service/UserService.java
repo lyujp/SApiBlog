@@ -25,7 +25,7 @@ public class UserService {
         this.userMapper = userMapper;
     }
 
-    public UserWithoutSensitiveDto login(String username, String password) throws NoSuchAlgorithmException,UserLoginFailed {
+    public UserWithoutSensitiveDto login(String username, String password) throws NoSuchAlgorithmException, UserLoginFailed {
         LambdaQueryWrapper<User> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.eq(User::getUsername, username);
         User userDb = userMapper.selectOne(lambdaQueryWrapper);
@@ -40,9 +40,9 @@ public class UserService {
 
         ObjectMapper objectMapper = new ObjectMapper();
         String payload;
-        try{
+        try {
             payload = objectMapper.writeValueAsString(userDb);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new UserLoginFailed("Username or password is invalid");
         }
 
@@ -68,7 +68,7 @@ public class UserService {
         UserWithoutSensitiveDto userWithoutSensitiveDto = jwtDbVerify(token);
 
         LambdaQueryWrapper<User> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.eq(User::getJwt, token).eq(User::getId,userWithoutSensitiveDto.getId());
+        lambdaQueryWrapper.eq(User::getJwt, token).eq(User::getId, userWithoutSensitiveDto.getId());
 
         User user = userMapper.selectOne(lambdaQueryWrapper);
         if (user == null) {
@@ -82,7 +82,7 @@ public class UserService {
         String payload = Jwt.decodeJwt(token);
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            return objectMapper.readValue(payload,UserWithoutSensitiveDto.class);
+            return objectMapper.readValue(payload, UserWithoutSensitiveDto.class);
         } catch (JsonProcessingException e) {
             throw new UserJwtVerifyFailedException("Jwt decode failed");
         }

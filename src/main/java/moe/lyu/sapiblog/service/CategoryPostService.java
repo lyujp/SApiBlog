@@ -69,7 +69,7 @@ public class CategoryPostService {
     }
 
     private Integer addCategoryPost(List<CategoryPost> categoryPosts) throws PostNotExistException {
-        if(categoryPosts == null || categoryPosts.isEmpty()) {
+        if (categoryPosts == null || categoryPosts.isEmpty()) {
             return 0;
         }
 

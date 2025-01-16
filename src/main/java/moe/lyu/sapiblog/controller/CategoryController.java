@@ -1,7 +1,6 @@
 package moe.lyu.sapiblog.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import jakarta.servlet.http.HttpServletRequest;
 import moe.lyu.sapiblog.annotation.AuthCheck;
 import moe.lyu.sapiblog.dto.Resp;
 import moe.lyu.sapiblog.entity.Category;

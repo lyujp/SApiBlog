@@ -2,7 +2,6 @@ package moe.lyu.sapiblog;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import moe.lyu.sapiblog.entity.Category;
-import moe.lyu.sapiblog.entity.Post;
 import moe.lyu.sapiblog.exception.CategoryNotFoundException;
 import moe.lyu.sapiblog.service.CategoryPostService;
 import moe.lyu.sapiblog.service.CategoryService;
@@ -45,7 +44,8 @@ public class CategoryPostServiceTest {
         try {
             Category test = categoryService.getByUniqName("__test");
             categoryService.delete(test.getId());
-        } catch (CategoryNotFoundException ignored) {}
+        } catch (CategoryNotFoundException ignored) {
+        }
 
     }
 
@@ -59,7 +59,7 @@ public class CategoryPostServiceTest {
         }
     }
 
-    void list(){
+    void list() {
         List<CategoryPostVo> list = categoryPostService.list(this.testCategoryId);
         System.out.println(list);
     }
