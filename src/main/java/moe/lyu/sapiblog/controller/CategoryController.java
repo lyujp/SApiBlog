@@ -1,6 +1,8 @@
 package moe.lyu.sapiblog.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import jakarta.servlet.http.HttpServletRequest;
+import moe.lyu.sapiblog.annotation.AuthCheck;
 import moe.lyu.sapiblog.dto.Resp;
 import moe.lyu.sapiblog.entity.Category;
 import moe.lyu.sapiblog.exception.CategoryAlreadyExistException;
@@ -14,6 +16,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/category")
+@AuthCheck()
 public class CategoryController {
 
     CategoryService categoryService;
@@ -23,6 +26,7 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
+    @AuthCheck(skipCheck = true)
     @GetMapping("/list")
     public Resp list(@RequestParam(value = "desc", required = false, defaultValue = "true") Boolean orderByDesc,
                      @RequestParam(value = "field", required = false, defaultValue = "id") String orderByField

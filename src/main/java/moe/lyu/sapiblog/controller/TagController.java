@@ -1,6 +1,7 @@
 package moe.lyu.sapiblog.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import moe.lyu.sapiblog.annotation.AuthCheck;
 import moe.lyu.sapiblog.dto.Resp;
 import moe.lyu.sapiblog.entity.Tag;
 import moe.lyu.sapiblog.exception.TagAlreadyExistException;
@@ -14,6 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/tag")
+@AuthCheck()
 public class TagController {
 
     TagService TagService;
@@ -23,6 +25,7 @@ public class TagController {
         this.TagService = TagService;
     }
 
+    @AuthCheck(skipCheck = true)
     @GetMapping("/list")
     public Resp list(@RequestParam(value = "desc", required = false, defaultValue = "true") Boolean orderByDesc,
                      @RequestParam(value = "field", required = false, defaultValue = "id") String orderByField
