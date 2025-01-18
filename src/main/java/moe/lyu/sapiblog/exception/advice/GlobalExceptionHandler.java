@@ -15,7 +15,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UserJwtVerifyFailedException.class)
-    public Resp authCheckFailed(UserJwtVerifyFailedException e){
+    public Resp authCheckFailed(UserJwtVerifyFailedException e) {
         return Resp.error(-403, "Not authorized");
     }
 

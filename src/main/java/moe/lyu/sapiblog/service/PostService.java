@@ -1,6 +1,5 @@
 package moe.lyu.sapiblog.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import moe.lyu.sapiblog.dto.PostWithoutContentDto;
@@ -44,16 +43,16 @@ public class PostService {
     }
 
     public Boolean delete(long id) {
-        if(postMapper.deleteById(id) != 1){
+        if (postMapper.deleteById(id) != 1) {
             throw new PostNotExistException("Post with id " + id + " not exist");
         }
         return true;
     }
 
     public List<PostWithoutContentDto> list(boolean desc, int currentPage, int pageSize) {
-        Page<Post> page = new Page<>(currentPage,pageSize);
+        Page<Post> page = new Page<>(currentPage, pageSize);
         QueryWrapper<Post> postQueryWrapper = new QueryWrapper<>();
-        postQueryWrapper.orderBy(true,!desc,"id");
+        postQueryWrapper.orderBy(true, !desc, "id");
         page = postMapper.selectPage(page, postQueryWrapper);
 
         return page.getRecords().stream().map(post -> {

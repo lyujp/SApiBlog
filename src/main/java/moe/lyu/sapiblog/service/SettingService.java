@@ -1,21 +1,12 @@
 package moe.lyu.sapiblog.service;
 
-import com.baomidou.mybatisplus.core.batch.MybatisBatch;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.extension.service.IService;
 import moe.lyu.sapiblog.entity.Setting;
 import moe.lyu.sapiblog.mapper.SettingMapper;
-import org.apache.ibatis.executor.BatchResult;
-import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class SettingService {

@@ -43,9 +43,9 @@ public class PostController {
 
     @AuthCheck(skipCheck = true)
     @GetMapping("/list")
-    public Resp list(@RequestParam(value = "true",required = false) boolean desc,
-                     @RequestParam(value = "1",required = false) int page,
-                     @RequestParam(value = "10",required = false) int size) {
+    public Resp list(@RequestParam(value = "true", required = false) boolean desc,
+                     @RequestParam(value = "1", required = false) int page,
+                     @RequestParam(value = "10", required = false) int size) {
         List<PostWithoutContentDto> list = postService.list(desc, page, size);
         return Resp.success(list);
     }

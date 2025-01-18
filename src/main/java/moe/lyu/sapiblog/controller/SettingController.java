@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/setting")
@@ -22,7 +21,7 @@ public class SettingController {
     }
 
     @GetMapping("/system")
-    public Resp getSystemSetting(){
+    public Resp getSystemSetting() {
         List<Setting> settings = settingService.list(false);
         List<SettingDto> settingDtos = settings.stream().map(setting -> {
             SettingDto settingDto = new SettingDto();
@@ -34,7 +33,7 @@ public class SettingController {
     }
 
     @GetMapping("/custom")
-    public Resp getCustomSetting(){
+    public Resp getCustomSetting() {
         List<Setting> settings = settingService.list(true);
         List<SettingDto> settingDtos = settings.stream().map(setting -> {
             SettingDto settingDto = new SettingDto();
@@ -46,7 +45,7 @@ public class SettingController {
     }
 
     @PostMapping("/update")
-    public Resp updateSetting(@RequestBody List<SettingDto> settingDtos){
+    public Resp updateSetting(@RequestBody List<SettingDto> settingDtos) {
         List<Setting> settings = settingDtos.stream().map(settingDto -> {
             Setting setting = new Setting();
             setting.setK(settingDto.getK());
