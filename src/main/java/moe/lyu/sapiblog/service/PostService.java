@@ -1,11 +1,19 @@
 package moe.lyu.sapiblog.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import moe.lyu.sapiblog.dto.PostWithoutContentDto;
 import moe.lyu.sapiblog.entity.Post;
 import moe.lyu.sapiblog.exception.PostAddFailedException;
+import moe.lyu.sapiblog.exception.PostNotExistException;
 import moe.lyu.sapiblog.exception.PostSaveFailedException;
 import moe.lyu.sapiblog.mapper.PostMapper;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class PostService {
@@ -17,7 +25,7 @@ public class PostService {
         this.postMapper = postMapper;
     }
 
-    public Post save(Post post) {
+    public Post update(Post post) {
         if (post.getId() == null) {
             int effectRows = postMapper.insert(post);
             if (effectRows == 1) {
@@ -35,7 +43,31 @@ public class PostService {
         }
     }
 
-    public Boolean delete(Long id) {
-        return postMapper.deleteById(id) == 1;
+    public Boolean delete(long id) {
+        if(postMapper.deleteById(id) != 1){
+            throw new PostNotExistException("Post with id " + id + " not exist");
+        }
+        return true;
+    }
+
+    public List<PostWithoutContentDto> list(boolean desc, int currentPage, int pageSize) {
+        Page<Post> page = new Page<>(currentPage,pageSize);
+        QueryWrapper<Post> postQueryWrapper = new QueryWrapper<>();
+        postQueryWrapper.orderBy(true,!desc,"id");
+        page = postMapper.selectPage(page, postQueryWrapper);
+
+        return page.getRecords().stream().map(post -> {
+            PostWithoutContentDto postWithoutContentDto = new PostWithoutContentDto();
+            BeanUtils.copyProperties(post, postWithoutContentDto);
+            return postWithoutContentDto;
+        }).toList();
+    }
+
+    public Post getById(long id) {
+        Post post = postMapper.selectById(id);
+        if (post == null) {
+            throw new PostNotExistException("Post with id " + id + " not exist");
+        }
+        return post;
     }
 }

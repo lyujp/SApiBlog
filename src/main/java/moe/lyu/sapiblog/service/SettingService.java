@@ -20,17 +20,14 @@ import java.util.stream.Stream;
 @Service
 public class SettingService {
 
-    private final SqlSessionFactory sqlSessionFactory;
     SettingMapper settingMapper;
     ISettingService iSettingService;
 
     @Autowired
     public SettingService(SettingMapper settingMapper,
-                          SqlSessionFactory sqlSessionFactory,
                           ISettingService iSettingService
     ) {
         this.settingMapper = settingMapper;
-        this.sqlSessionFactory = sqlSessionFactory;
         this.iSettingService = iSettingService;
     }
 

@@ -1,9 +1,9 @@
-package moe.lyu.sapiblog.vo;
+package moe.lyu.sapiblog.dto;
 
 import lombok.Data;
 
 @Data
-public class PostWithoutContentVo {
+public class PostWithoutContentDto {
     private Integer id;
     private Integer authorId;
     private String title;
