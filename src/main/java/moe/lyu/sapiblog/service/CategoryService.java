@@ -43,26 +43,14 @@ public class CategoryService {
         return page.getRecords();
     }
 
-    public Category getById(Integer id) throws CategoryNotFoundException {
-        LambdaQueryWrapper<Category> categoryLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        categoryLambdaQueryWrapper.eq(Category::getId, id);
-        Category category = categoryMapper.selectOne(categoryLambdaQueryWrapper);
-        if (category == null) {
-            throw new CategoryNotFoundException(id.toString() + " not found");
-        } else {
-            return category;
+    public Category getByUniqName(String uniqName) throws CategoryNotFoundException {
+        LambdaQueryWrapper<Category> categoryQueryWrapper = new LambdaQueryWrapper<>();
+        categoryQueryWrapper.eq(Category::getUniqName, uniqName);
+        Category category = categoryMapper.selectOne(categoryQueryWrapper);
+        if(category == null) {
+            throw new CategoryNotFoundException(uniqName);
         }
-    }
-
-    public Category getByUniqName(String name) throws CategoryNotFoundException {
-        LambdaQueryWrapper<Category> categoryLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        categoryLambdaQueryWrapper.eq(Category::getUniqName, name);
-        Category category = categoryMapper.selectOne(categoryLambdaQueryWrapper);
-        if (category == null) {
-            throw new CategoryNotFoundException(name + "not found");
-        } else {
-            return category;
-        }
+        return category;
     }
 
     public Category add(Category category) throws JsonProcessingException, CategoryAlreadyExistException {

@@ -5,7 +5,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import moe.lyu.sapiblog.entity.Category;
 import moe.lyu.sapiblog.entity.Tag;
+import moe.lyu.sapiblog.exception.CategoryNotFoundException;
 import moe.lyu.sapiblog.exception.TagAlreadyExistException;
 import moe.lyu.sapiblog.exception.TagNotFoundException;
 import moe.lyu.sapiblog.exception.TagUnknownException;
@@ -41,26 +43,14 @@ public class TagService {
         return page.getRecords();
     }
 
-    public Tag getById(Integer id) throws TagNotFoundException {
-        LambdaQueryWrapper<Tag> tagLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        tagLambdaQueryWrapper.eq(Tag::getId, id);
-        Tag tag = tagMapper.selectOne(tagLambdaQueryWrapper);
-        if (tag == null) {
-            throw new TagNotFoundException(id.toString() + " not found");
-        } else {
-            return tag;
+    public Tag getByUniqName(String uniqName) throws TagNotFoundException {
+        LambdaQueryWrapper<Tag> tagQueryWrapper = new LambdaQueryWrapper<>();
+        tagQueryWrapper.eq(Tag::getUniqName, uniqName);
+        Tag tag = tagMapper.selectOne(tagQueryWrapper);
+        if(tag == null) {
+            throw new TagNotFoundException(uniqName);
         }
-    }
-
-    public Tag getByUniqName(String name) throws TagNotFoundException {
-        LambdaQueryWrapper<Tag> tagLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        tagLambdaQueryWrapper.eq(Tag::getUniqName, name);
-        Tag tag = tagMapper.selectOne(tagLambdaQueryWrapper);
-        if (tag == null) {
-            throw new TagNotFoundException(name + "not found");
-        } else {
-            return tag;
-        }
+        return tag;
     }
 
     public Tag add(Tag tag) throws JsonProcessingException, TagAlreadyExistException {

@@ -14,12 +14,12 @@ public class TagControllerHandler {
 
     @ExceptionHandler(TagNotFoundException.class)
     public Resp handleTagNotFound(TagNotFoundException e) {
-        return Resp.error(-400, "Tag '" + e.getMessage() + "' not found");
+        return Resp.error(-400, e.getMessage());
     }
 
     @ExceptionHandler(TagAlreadyExistException.class)
     public Resp handleTagAlreadyExist(TagAlreadyExistException e) {
-        return Resp.error(-300, "Tag '" + e.getMessage() + "' already exist");
+        return Resp.error(-200, e.getMessage());
     }
 
     @ExceptionHandler(TagUnknownException.class)

@@ -14,12 +14,12 @@ public class CategoryControllerHandler {
 
     @ExceptionHandler(CategoryNotFoundException.class)
     public Resp handleCategoryNotFound(CategoryNotFoundException e) {
-        return Resp.error(-400, "Category '" + e.getMessage() + "' not found");
+        return Resp.error(-400, e.getMessage());
     }
 
     @ExceptionHandler(CategoryAlreadyExistException.class)
     public Resp handleCategoryAlreadyExist(CategoryAlreadyExistException e) {
-        return Resp.error(-300, "Category '" + e.getMessage() + "' already exist");
+        return Resp.error(-200, e.getMessage());
     }
 
     @ExceptionHandler(CategoryUnknownException.class)

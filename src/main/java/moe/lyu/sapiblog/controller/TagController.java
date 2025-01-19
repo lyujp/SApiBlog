@@ -3,7 +3,9 @@ package moe.lyu.sapiblog.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import moe.lyu.sapiblog.annotation.AuthCheck;
 import moe.lyu.sapiblog.dto.Resp;
+import moe.lyu.sapiblog.entity.Category;
 import moe.lyu.sapiblog.entity.Tag;
+import moe.lyu.sapiblog.exception.CategoryNotFoundException;
 import moe.lyu.sapiblog.exception.TagAlreadyExistException;
 import moe.lyu.sapiblog.exception.TagNotFoundException;
 import moe.lyu.sapiblog.exception.TagUnknownException;
@@ -33,36 +35,29 @@ public class TagController {
     @AuthCheck(skipCheck = true)
     @GetMapping("/list")
     public Resp list(
-            @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
-            @RequestParam(value = "size", required = false, defaultValue = "10") Integer size,
+            @RequestParam(value = "page", required = false, defaultValue = "1") Integer currentPage,
+            @RequestParam(value = "size", required = false, defaultValue = "10") Integer pageSize,
             @RequestParam(value = "desc", required = false, defaultValue = "true") Boolean desc
     ) {
-        List<Tag> categories = tagService.list(page, size, desc);
+        List<Tag> categories = tagService.list(currentPage, pageSize, desc);
         return Resp.success(categories);
     }
 
-    @GetMapping("/list/{post_id}")
+    @GetMapping("/list/post_id/{post_id}")
     @AuthCheck(skipCheck = true)
     public Resp listByPostId(
             @PathVariable(value = "post_id") Integer postId,
-            @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
-            @RequestParam(value = "size", required = false, defaultValue = "10") Integer size,
+            @RequestParam(value = "page", required = false, defaultValue = "1") Integer currentPage,
+            @RequestParam(value = "size", required = false, defaultValue = "10") Integer pageSize,
             @RequestParam(value = "desc", required = false, defaultValue = "true") Boolean desc
     ) {
-        List<Tag> categories = tagService.listByPostId(postId, page, size, desc);
+        List<Tag> categories = tagService.listByPostId(postId, currentPage, pageSize, desc);
         return Resp.success(categories);
     }
 
+    @GetMapping("/get/{uniq_name}")
     @AuthCheck(skipCheck = true)
-    @GetMapping("/get_by_id/{id}")
-    public Resp get(@PathVariable(value = "id") Integer id) throws TagNotFoundException {
-        Tag tag = tagService.getById(id);
-        return Resp.success(tag);
-    }
-
-    @AuthCheck(skipCheck = true)
-    @GetMapping("/get_by_uniq_name/{uniq_name}")
-    public Resp getByUniqName(@PathVariable(value = "uniq_name") String uniq_name) throws TagNotFoundException {
+    public Resp getByUniqName(@PathVariable String uniq_name) throws TagNotFoundException {
         Tag tag = tagService.getByUniqName(uniq_name);
         return Resp.success(tag);
     }

@@ -33,12 +33,12 @@ public class CategoryController {
 
     @AuthCheck(skipCheck = true)
     @GetMapping("/list")
-    public Resp list(
-            @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
-            @RequestParam(value = "size", required = false, defaultValue = "10") Integer size,
+    public Resp listAllCategory(
+            @RequestParam(value = "page", required = false, defaultValue = "1") Integer currentPage,
+            @RequestParam(value = "size", required = false, defaultValue = "10") Integer pageSize,
             @RequestParam(value = "desc", required = false, defaultValue = "true") Boolean desc
     ) {
-        List<Category> categories = categoryService.list(page, size, desc);
+        List<Category> categories = categoryService.list(currentPage, pageSize, desc);
         return Resp.success(categories);
     }
 
@@ -46,24 +46,17 @@ public class CategoryController {
     @AuthCheck(skipCheck = true)
     public Resp listByPostId(
             @PathVariable(value = "post_id") Integer postId,
-            @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
-            @RequestParam(value = "size", required = false, defaultValue = "10") Integer size,
+            @RequestParam(value = "page", required = false, defaultValue = "1") Integer currentPage,
+            @RequestParam(value = "size", required = false, defaultValue = "10") Integer pageSize,
             @RequestParam(value = "desc", required = false, defaultValue = "true") Boolean desc
     ) {
-        List<Category> categories = categoryService.listByPostId(postId, page, size, desc);
+        List<Category> categories = categoryService.listByPostId(postId, currentPage, pageSize, desc);
         return Resp.success(categories);
     }
 
+    @GetMapping("/get/{uniq_name}")
     @AuthCheck(skipCheck = true)
-    @GetMapping("/get_by_id/{id}")
-    public Resp get(@PathVariable(value = "id") Integer id) throws CategoryNotFoundException {
-        Category category = categoryService.getById(id);
-        return Resp.success(category);
-    }
-
-    @AuthCheck(skipCheck = true)
-    @GetMapping("/get_by_uniq_name/{uniq_name}")
-    public Resp getByUniqName(@PathVariable(value = "uniq_name") String uniq_name) throws CategoryNotFoundException {
+    public Resp getByUniqName(@PathVariable String uniq_name) throws CategoryNotFoundException {
         Category category = categoryService.getByUniqName(uniq_name);
         return Resp.success(category);
     }
@@ -96,7 +89,7 @@ public class CategoryController {
     }
 
     @PostMapping("/delete")
-    public Resp detete(@RequestBody Integer ids) throws CategoryNotFoundException {
+    public Resp delete(@RequestBody Integer ids) throws CategoryNotFoundException {
         Boolean delete = categoryService.delete(ids);
         if (delete) {
             return Resp.success();

@@ -49,7 +49,7 @@ public class PostService {
         return true;
     }
 
-    public List<PostWithoutContentDto> list(Boolean desc, Integer currentPage, Integer pageSize) {
+    public List<PostWithoutContentDto> list(Integer currentPage, Integer pageSize, Boolean desc) {
         Page<Post> page = new Page<>(currentPage, pageSize);
         QueryWrapper<Post> postQueryWrapper = new QueryWrapper<>();
         postQueryWrapper.orderBy(true, !desc, "id");
