@@ -2,17 +2,13 @@ package moe.lyu.sapiblog.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
+import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import moe.lyu.sapiblog.entity.Post;
-import moe.lyu.sapiblog.entity.Tag;
-import moe.lyu.sapiblog.entity.TagPost;
-import moe.lyu.sapiblog.exception.PostNotExistException;
-import moe.lyu.sapiblog.exception.TagAddFailedException;
-import moe.lyu.sapiblog.exception.TagNotFoundException;
-import moe.lyu.sapiblog.mapper.PostMapper;
-import moe.lyu.sapiblog.mapper.TagMapper;
-import moe.lyu.sapiblog.mapper.TagPostDtoMapper;
-import moe.lyu.sapiblog.mapper.TagPostMapper;
+import moe.lyu.sapiblog.entity.*;
+import moe.lyu.sapiblog.exception.*;
+import moe.lyu.sapiblog.mapper.*;
+import moe.lyu.sapiblog.vo.TagPostVo;
 import moe.lyu.sapiblog.vo.TagPostVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,10 +26,10 @@ public class TagPostService {
 
     @Autowired
     public TagPostService(TagPostDtoMapper tagPostDtoMapper,
-                          TagPostMapper tagPostMapper,
-                          PostMapper postMapper,
-                          TagMapper tagMapper,
-                          ITagPostService iTagPostService) {
+                               TagPostMapper tagPostMapper,
+                               PostMapper postMapper,
+                               TagMapper tagMapper,
+                               ITagPostService iTagPostService) {
         this.tagPostDtoMapper = tagPostDtoMapper;
         this.tagPostMapper = tagPostMapper;
         this.postMapper = postMapper;
@@ -45,54 +41,48 @@ public class TagPostService {
         return tagPostDtoMapper.get(tagId);
     }
 
-    public List<TagPost> listByPostId(Integer postId, Integer currentPage, Integer pageSize, Boolean desc) {
-        Page<TagPost> page = new Page<>(currentPage, pageSize);
-        QueryWrapper<TagPost> queryWrapper = new QueryWrapper<>();
-        queryWrapper.orderBy(true, !desc, "id");
-        queryWrapper.eq("post_id", postId);
-        page = tagPostMapper.selectPage(page, queryWrapper);
-        return page.getRecords();
+    public List<TagPost> listByPostId(Integer postId) {
+        LambdaQueryChainWrapper<TagPost> tagPostLambdaQueryChainWrapper = new LambdaQueryChainWrapper<>(tagPostMapper);
+        return tagPostLambdaQueryChainWrapper.eq(TagPost::getPostId, postId).orderByDesc(TagPost::getId).list();
     }
 
-    public void add(Integer postId, Integer tagId)
-            throws TagAddFailedException,
+    public void add(Integer postId, Integer tagId) throws TagAddFailedException,
             PostNotExistException,
             TagNotFoundException {
-        Post post = postMapper.selectById(postId);
+        LambdaQueryChainWrapper<TagPost> tagPostLambdaQueryChainWrapper = new LambdaQueryChainWrapper<>(tagPostMapper);
+        TagPost one = tagPostLambdaQueryChainWrapper.eq(TagPost::getPostId, postId).eq(TagPost::getTagId, tagId).one();
+        if(one != null) {
+            return;
+        }
+
+        LambdaQueryChainWrapper<Post> postLambdaQueryChainWrapper = new LambdaQueryChainWrapper<>(postMapper);
+        Post post = postLambdaQueryChainWrapper.eq(Post::getId, postId).one();
         if (post == null) {
             throw new PostNotExistException("Post id " + postId + " not exist");
         }
 
-        Tag tag = tagMapper.selectById(tagId);
+        LambdaQueryChainWrapper<Tag> tagLambdaQueryChainWrapper = new LambdaQueryChainWrapper<>(tagMapper);
+        Tag tag = tagLambdaQueryChainWrapper.eq(Tag::getId, tagId).one();
         if (tag == null) {
             throw new TagNotFoundException("Tag id " + tagId + " not exist");
         }
 
         TagPost tagPost = new TagPost();
-        tagPost.setTagId(tagId);
         tagPost.setPostId(postId);
+        tagPost.setTagId(tagId);
         int insert = tagPostMapper.insert(tagPost);
         if (insert == 0) {
-            LambdaQueryWrapper<TagPost> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(TagPost::getTagId, tagId);
-            queryWrapper.eq(TagPost::getPostId, postId);
-            List<TagPost> tagPosts = tagPostMapper.selectList(queryWrapper);
-            if (tagPosts.isEmpty()) {
-                throw new TagAddFailedException("Unknown reason");
-            }
-            throw new TagAddFailedException("Post already add to tag");
+            throw new TagAddFailedException("Unknown reason");
         }
     }
 
-    public Integer deleteByPostId(Integer postId) {
-        LambdaQueryWrapper<TagPost> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.eq(TagPost::getPostId, postId);
-        return tagPostMapper.delete(lambdaQueryWrapper);
+    public void deleteByPostId(Integer postId) {
+        LambdaUpdateChainWrapper<TagPost> tagPostLambdaUpdateChainWrapper = new LambdaUpdateChainWrapper<>(tagPostMapper);
+        tagPostLambdaUpdateChainWrapper.eq(TagPost::getPostId, postId).remove();
     }
 
-    public Integer deleteByTagId(Integer tagId) {
-        LambdaQueryWrapper<TagPost> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.eq(TagPost::getTagId, tagId);
-        return tagPostMapper.delete(lambdaQueryWrapper);
+    public void deleteByTagId(Integer tagId) {
+        LambdaUpdateChainWrapper<TagPost> tagPostLambdaUpdateChainWrapper = new LambdaUpdateChainWrapper<>(tagPostMapper);
+        tagPostLambdaUpdateChainWrapper.eq(TagPost::getTagId, tagId).remove();
     }
 }

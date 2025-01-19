@@ -5,6 +5,7 @@ import moe.lyu.sapiblog.annotation.AuthCheck;
 import moe.lyu.sapiblog.dto.CategoryTreeDto;
 import moe.lyu.sapiblog.dto.Resp;
 import moe.lyu.sapiblog.entity.Category;
+import moe.lyu.sapiblog.exception.CategoryAddFailedException;
 import moe.lyu.sapiblog.exception.CategoryAlreadyExistException;
 import moe.lyu.sapiblog.exception.CategoryNotFoundException;
 import moe.lyu.sapiblog.exception.CategoryUnknownException;
@@ -33,7 +34,7 @@ public class CategoryController {
 
     @AuthCheck(skipCheck = true)
     @GetMapping("/list")
-    public Resp listAllCategory(
+    public Resp listAllCategories(
             @RequestParam(value = "page", required = false, defaultValue = "1") Integer currentPage,
             @RequestParam(value = "size", required = false, defaultValue = "10") Integer pageSize,
             @RequestParam(value = "desc", required = false, defaultValue = "true") Boolean desc
@@ -44,25 +45,27 @@ public class CategoryController {
 
     @GetMapping("/list/{post_id}")
     @AuthCheck(skipCheck = true)
-    public Resp listByPostId(
-            @PathVariable(value = "post_id") Integer postId,
-            @RequestParam(value = "page", required = false, defaultValue = "1") Integer currentPage,
-            @RequestParam(value = "size", required = false, defaultValue = "10") Integer pageSize,
-            @RequestParam(value = "desc", required = false, defaultValue = "true") Boolean desc
-    ) {
-        List<Category> categories = categoryService.listByPostId(postId, currentPage, pageSize, desc);
+    public Resp listByPostId(@PathVariable(value = "post_id") Integer postId) {
+        List<Category> categories = categoryService.listByPostId(postId);
         return Resp.success(categories);
     }
 
-    @GetMapping("/get/{uniq_name}")
+    @GetMapping("/get/uniq_name/{uniq_name}")
     @AuthCheck(skipCheck = true)
     public Resp getByUniqName(@PathVariable String uniq_name) throws CategoryNotFoundException {
         Category category = categoryService.getByUniqName(uniq_name);
         return Resp.success(category);
     }
 
+    @GetMapping("/get/name/{name}")
+    @AuthCheck(skipCheck = true)
+    public Resp getByName(@PathVariable String name) throws CategoryNotFoundException {
+        Category category = categoryService.getByName(name);
+        return Resp.success(category);
+    }
+
     @PostMapping("/add")
-    public Resp add(@RequestBody Map<String, String> arg) throws JsonProcessingException, CategoryAlreadyExistException {
+    public Resp add(@RequestBody Map<String, String> arg) throws JsonProcessingException, CategoryAlreadyExistException, CategoryAddFailedException {
         Category category = new Category();
         try {
             category.setName(arg.get("name"));
@@ -76,14 +79,14 @@ public class CategoryController {
 
     }
 
-    @PostMapping("/add/uniq_name/{uniq_name}")
-    public Resp addQuick(@PathVariable String uniq_name) throws JsonProcessingException, CategoryUnknownException {
-        Category added = categoryService.add(uniq_name);
+    @PostMapping("/add/name/{name}")
+    public Resp addQuick(@PathVariable String name) throws JsonProcessingException, CategoryUnknownException, CategoryAddFailedException{
+        Category added = categoryService.add(name);
         return Resp.success(added);
     }
 
     @PostMapping("/update")
-    public Resp update(@RequestBody Category category) throws CategoryNotFoundException {
+    public Resp update(@RequestBody Category category) throws CategoryNotFoundException, CategoryUnknownException {
         Category update = categoryService.update(category);
         return Resp.success(update);
     }
@@ -97,6 +100,13 @@ public class CategoryController {
     @PostMapping("/delete/uniq_name/{uniq_name}")
     public Resp deleteByUniqName(@PathVariable String uniq_name) throws CategoryNotFoundException {
         Category category = categoryService.getByUniqName(uniq_name);
+        categoryService.delete(category.getId());
+        return Resp.success();
+    }
+
+    @PostMapping("/delete/name/{name}")
+    public Resp deleteByName(@PathVariable String name) throws CategoryNotFoundException {
+        Category category = categoryService.getByName(name);
         categoryService.delete(category.getId());
         return Resp.success();
     }

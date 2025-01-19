@@ -24,7 +24,8 @@ public class PostService {
         this.postMapper = postMapper;
     }
 
-    public Post update(Post post) {
+    public Post update(Post post) throws PostNotExistException {
+        if(post == null) throw new PostNotExistException("Post can't be null");
         if (post.getId() == null) {
             int effectRows = postMapper.insert(post);
             if (effectRows == 1) {
@@ -42,11 +43,11 @@ public class PostService {
         }
     }
 
-    public Boolean delete(Integer id) {
+    public void delete(Integer id) {
+        if(id == null) return ;
         if (postMapper.deleteById(id) != 1) {
             throw new PostNotExistException("Post with id " + id + " not exist");
         }
-        return true;
     }
 
     public List<PostWithoutContentDto> list(Integer currentPage, Integer pageSize, Boolean desc) {

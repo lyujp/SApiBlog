@@ -36,7 +36,7 @@ public class PostController {
 
     @AuthCheck
     @PostMapping("/update")
-    public Resp update(@RequestParam Post post) {
+    public Resp update(@RequestParam Post post) throws PostNotExistException {
         Post update = postService.update(post);
         return Resp.success(update);
     }
@@ -75,22 +75,15 @@ public class PostController {
     }
 
     @GetMapping("/list/category/{post_id}")
-    public Resp listCategory(@PathVariable Integer post_id,
-                             @RequestParam(value = "page", required = false, defaultValue = "1") Integer currentPage,
-                             @RequestParam(value = "size", required = false, defaultValue = "10") Integer pageSize,
-                             @RequestParam(value = "desc", required = false, defaultValue = "true") Boolean desc) {
-        List<CategoryPost> list = categoryPostService.listByPostId(post_id, currentPage, pageSize, desc);
+    public Resp listCategory(@PathVariable Integer post_id) {
+        List<CategoryPost> list = categoryPostService.listByPostId(post_id);
         return Resp.success(list);
     }
 
     @GetMapping("/list/tag/{post_id}")
-    public Resp listTag(@PathVariable Integer post_id,
-                        @RequestParam(value = "page", required = false, defaultValue = "1") Integer currentPage,
-                        @RequestParam(value = "size", required = false, defaultValue = "10") Integer pageSize,
-                        @RequestParam(value = "desc", required = false, defaultValue = "true") Boolean desc) {
-        List<TagPost> list = tagPostService.listByPostId(post_id, currentPage, pageSize, desc);
+    public Resp listTag(@PathVariable Integer post_id) {
+        List<TagPost> list = tagPostService.listByPostId(post_id);
         return Resp.success(list);
-
     }
 
     @PostMapping("/add/category/{post_id}/{category_id}")

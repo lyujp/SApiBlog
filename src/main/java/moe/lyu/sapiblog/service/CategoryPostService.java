@@ -2,6 +2,8 @@ package moe.lyu.sapiblog.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
+import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import moe.lyu.sapiblog.entity.Category;
 import moe.lyu.sapiblog.entity.CategoryPost;
@@ -45,24 +47,28 @@ public class CategoryPostService {
         return categoryPostDtoMapper.get(categoryId);
     }
 
-    public List<CategoryPost> listByPostId(Integer postId, Integer currentPage, Integer pageSize, Boolean desc) {
-        Page<CategoryPost> page = new Page<>(currentPage, pageSize);
-        QueryWrapper<CategoryPost> queryWrapper = new QueryWrapper<>();
-        queryWrapper.orderBy(true, !desc, "id");
-        queryWrapper.eq("post_id", postId);
-        page = categoryPostMapper.selectPage(page, queryWrapper);
-        return page.getRecords();
+    public List<CategoryPost> listByPostId(Integer postId) {
+        LambdaQueryChainWrapper<CategoryPost> categoryPostLambdaQueryChainWrapper = new LambdaQueryChainWrapper<>(categoryPostMapper);
+        return categoryPostLambdaQueryChainWrapper.eq(CategoryPost::getPostId, postId).orderByDesc(CategoryPost::getId).list();
     }
 
     public void add(Integer postId, Integer categoryId) throws CategoryAddFailedException,
             PostNotExistException,
             CategoryNotFoundException {
-        Post post = postMapper.selectById(postId);
+        LambdaQueryChainWrapper<CategoryPost> categoryPostLambdaQueryChainWrapper = new LambdaQueryChainWrapper<>(categoryPostMapper);
+        CategoryPost one = categoryPostLambdaQueryChainWrapper.eq(CategoryPost::getPostId, postId).eq(CategoryPost::getCategoryId, categoryId).one();
+        if(one != null) {
+            return;
+        }
+
+        LambdaQueryChainWrapper<Post> postLambdaQueryChainWrapper = new LambdaQueryChainWrapper<>(postMapper);
+        Post post = postLambdaQueryChainWrapper.eq(Post::getId, postId).one();
         if (post == null) {
             throw new PostNotExistException("Post id " + postId + " not exist");
         }
 
-        Category category = categoryMapper.selectById(categoryId);
+        LambdaQueryChainWrapper<Category> categoryLambdaQueryChainWrapper = new LambdaQueryChainWrapper<>(categoryMapper);
+        Category category = categoryLambdaQueryChainWrapper.eq(Category::getId, categoryId).one();
         if (category == null) {
             throw new CategoryNotFoundException("Category id " + categoryId + " not exist");
         }
@@ -72,26 +78,19 @@ public class CategoryPostService {
         categoryPost.setPostId(postId);
         int insert = categoryPostMapper.insert(categoryPost);
         if (insert == 0) {
-            LambdaQueryWrapper<CategoryPost> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(CategoryPost::getCategoryId, categoryId);
-            queryWrapper.eq(CategoryPost::getPostId, postId);
-            List<CategoryPost> categoryPosts = categoryPostMapper.selectList(queryWrapper);
-            if (categoryPosts.isEmpty()) {
-                throw new CategoryAddFailedException("Unknown reason");
-            }
-            throw new CategoryAddFailedException("Post already add to category");
+            throw new CategoryAddFailedException("Unknown reason");
         }
     }
 
-    public Integer deleteByPostId(Integer postId) {
-        LambdaQueryWrapper<CategoryPost> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.eq(CategoryPost::getPostId, postId);
-        return categoryPostMapper.delete(lambdaQueryWrapper);
+    public void deleteByPostId(Integer postId) {
+        if(postId == null) return;
+        LambdaUpdateChainWrapper<CategoryPost> categoryPostLambdaUpdateChainWrapper = new LambdaUpdateChainWrapper<>(categoryPostMapper);
+        categoryPostLambdaUpdateChainWrapper.eq(CategoryPost::getPostId, postId).remove();
     }
 
-    public Integer deleteByCategoryId(Integer categoryId) {
-        LambdaQueryWrapper<CategoryPost> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.eq(CategoryPost::getCategoryId, categoryId);
-        return categoryPostMapper.delete(lambdaQueryWrapper);
+    public void deleteByCategoryId(Integer categoryId) {
+        if(categoryId == null) return;
+        LambdaUpdateChainWrapper<CategoryPost> categoryPostLambdaUpdateChainWrapper = new LambdaUpdateChainWrapper<>(categoryPostMapper);
+        categoryPostLambdaUpdateChainWrapper.eq(CategoryPost::getCategoryId, categoryId).remove();
     }
 }
