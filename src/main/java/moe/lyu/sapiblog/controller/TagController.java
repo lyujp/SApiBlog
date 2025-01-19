@@ -55,7 +55,8 @@ public class TagController {
     }
 
     @PostMapping("/add")
-    public Resp add(@RequestBody Map<String, String> arg) throws JsonProcessingException, TagAlreadyExistException, TagAddFailedException {
+    public Resp add(@RequestBody Map<String, String> arg)
+            throws JsonProcessingException, TagAlreadyExistException, TagAddFailedException, TagUnknownException {
         Tag tag = new Tag();
         try {
             tag.setName(arg.get("name"));

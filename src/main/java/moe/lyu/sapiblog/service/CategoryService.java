@@ -72,25 +72,32 @@ public class CategoryService {
         return category;
     }
 
-    public Category add(Category category) throws JsonProcessingException, CategoryAlreadyExistException, CategoryAddFailedException {
+    public Category add(Category category) throws JsonProcessingException, CategoryAlreadyExistException, CategoryAddFailedException, CategoryUnknownException {
         if(category == null) throw new CategoryAddFailedException("Category can't be null");
         if (category.getName() == null || category.getName().isEmpty()) throw new CategoryAddFailedException("Category name can't be empty");
         if (category.getUniqName() == null || category.getUniqName().isEmpty()) throw new CategoryAddFailedException("Category uniqName can't be empty");
 
-        LambdaQueryChainWrapper<Category> categoryLambdaQueryChainWrapper = new LambdaQueryChainWrapper<>(categoryMapper);
-        categoryLambdaQueryChainWrapper.eq(Category::getUniqName, category.getUniqName());
-        if (categoryLambdaQueryChainWrapper.one() != null) {
-            throw new CategoryAlreadyExistException(category.getId().toString() + " already exist");
+        LambdaQueryChainWrapper<Category> categoryByNameLambdaQueryWrapper = new LambdaQueryChainWrapper<>(categoryMapper);
+        Category categoryByName = categoryByNameLambdaQueryWrapper.eq(Category::getName, category.getName()).one();
+        if(categoryByName != null) {
+            return category;
         }
 
-        LambdaUpdateChainWrapper<Category> categoryLambdaUpdateChainWrapper = new LambdaUpdateChainWrapper<>(categoryMapper);
-        boolean update = categoryLambdaUpdateChainWrapper.setEntity(category).update();
-        if(!update) {
-            throw new CategoryAddFailedException(new ObjectMapper().writeValueAsString(category));
+        LambdaQueryChainWrapper<Category> categoryByUniqNameLambdaQueryWrapper = new LambdaQueryChainWrapper<>(categoryMapper);
+        Category categoryByUniqName = categoryByUniqNameLambdaQueryWrapper.eq(Category::getUniqName, category.getUniqName()).one();
+        if(categoryByUniqName != null) {
+            return category;
         }
-        Category one = categoryLambdaQueryChainWrapper.one();
-        if(one == null) {
+
+        int insert = categoryMapper.insert(category);
+        if(insert == 0) {
             throw new CategoryAddFailedException("Unknown Exception");
+        }
+
+        categoryByUniqNameLambdaQueryWrapper = new LambdaQueryChainWrapper<>(categoryMapper);
+        Category one = categoryByUniqNameLambdaQueryWrapper.eq(Category::getUniqName, category.getUniqName()).one();
+        if(one == null) {
+            throw new CategoryUnknownException("Unknown Exception");
         }
         return one;
     }

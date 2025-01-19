@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWra
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import moe.lyu.sapiblog.entity.Category;
 import moe.lyu.sapiblog.entity.Tag;
 import moe.lyu.sapiblog.entity.TagPost;
 import moe.lyu.sapiblog.entity.Tag;
@@ -67,25 +68,32 @@ public class TagService {
         return tag;
     }
 
-    public Tag add(Tag tag) throws JsonProcessingException, TagAlreadyExistException, TagAddFailedException {
+    public Tag add(Tag tag) throws JsonProcessingException, TagAlreadyExistException, TagAddFailedException, TagUnknownException {
         if(tag == null) throw new TagAddFailedException("Tag can't be null");
         if (tag.getName() == null || tag.getName().isEmpty()) throw new TagAddFailedException("Tag name can't be empty");
         if (tag.getUniqName() == null || tag.getUniqName().isEmpty()) throw new TagAddFailedException("Tag uniqName can't be empty");
 
-        LambdaQueryChainWrapper<Tag> tagLambdaQueryChainWrapper = new LambdaQueryChainWrapper<>(tagMapper);
-        tagLambdaQueryChainWrapper.eq(Tag::getUniqName, tag.getUniqName());
-        if (tagLambdaQueryChainWrapper.one() != null) {
-            throw new TagAlreadyExistException(tag.getId().toString() + " already exist");
+        LambdaQueryChainWrapper<Tag> tagByNameLambdaQueryWrapper = new LambdaQueryChainWrapper<>(tagMapper);
+        Tag tagByName = tagByNameLambdaQueryWrapper.eq(Tag::getName, tag.getName()).one();
+        if(tagByName != null) {
+            return tagByName;
         }
 
-        LambdaUpdateChainWrapper<Tag> tagLambdaUpdateChainWrapper = new LambdaUpdateChainWrapper<>(tagMapper);
-        boolean update = tagLambdaUpdateChainWrapper.setEntity(tag).update();
-        if(!update) {
-            throw new TagAddFailedException(new ObjectMapper().writeValueAsString(tag));
+        LambdaQueryChainWrapper<Tag> tagByUniqNameLambdaQueryWrapper = new LambdaQueryChainWrapper<>(tagMapper);
+        Tag tagByUniqName = tagByUniqNameLambdaQueryWrapper.eq(Tag::getUniqName, tag.getUniqName()).one();
+        if(tagByUniqName != null) {
+            return tagByUniqName;
         }
-        Tag one = tagLambdaQueryChainWrapper.one();
-        if(one == null) {
+
+        int insert = tagMapper.insert(tag);
+        if(insert == 0) {
             throw new TagAddFailedException("Unknown Exception");
+        }
+
+        tagByUniqNameLambdaQueryWrapper = new LambdaQueryChainWrapper<>(tagMapper);
+        Tag one = tagByUniqNameLambdaQueryWrapper.eq(Tag::getUniqName, tag.getUniqName()).one();
+        if(one == null) {
+            throw new TagUnknownException("Unknown Exception");
         }
         return one;
     }

@@ -65,7 +65,8 @@ public class CategoryController {
     }
 
     @PostMapping("/add")
-    public Resp add(@RequestBody Map<String, String> arg) throws JsonProcessingException, CategoryAlreadyExistException, CategoryAddFailedException {
+    public Resp add(@RequestBody Map<String, String> arg)
+            throws JsonProcessingException, CategoryAlreadyExistException, CategoryAddFailedException, CategoryUnknownException {
         Category category = new Category();
         try {
             category.setName(arg.get("name"));
