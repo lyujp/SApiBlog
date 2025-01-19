@@ -7,6 +7,7 @@ import moe.lyu.sapiblog.dto.UserWithoutSensitiveDto;
 import moe.lyu.sapiblog.entity.User;
 import moe.lyu.sapiblog.exception.UserJwtVerifyFailedException;
 import moe.lyu.sapiblog.exception.UserLoginFailed;
+import moe.lyu.sapiblog.exception.UserUpdateFailedException;
 import moe.lyu.sapiblog.mapper.UserMapper;
 import moe.lyu.sapiblog.utils.Jwt;
 import org.springframework.beans.BeanUtils;
@@ -31,9 +32,10 @@ public class UserService {
         return userWithoutSensitiveDto;
     }
 
-    public UserWithoutSensitiveDto login(String username, String password) throws NoSuchAlgorithmException, UserLoginFailed {
+    public UserWithoutSensitiveDto login(String username, String password, String totp) throws NoSuchAlgorithmException, UserLoginFailed {
         LambdaQueryWrapper<User> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.eq(User::getUsername, username);
+        lambdaQueryWrapper.eq(User::getTotp, totp);
         User userDb = userMapper.selectOne(lambdaQueryWrapper);
         if (userDb == null) {
             throw new UserLoginFailed("Username is invalid");
@@ -65,8 +67,10 @@ public class UserService {
         return userMapper.insert(user) == 1;
     }
 
-    public Boolean update(User user) {
-        return userMapper.updateById(user) == 1;
+    public void update(User user) throws UserUpdateFailedException {
+        if(userMapper.updateById(user) == 0){
+            throw new UserUpdateFailedException("");
+        }
     }
 
     public UserWithoutSensitiveDto jwtDbVerify(String token) throws UserJwtVerifyFailedException {

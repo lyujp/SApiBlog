@@ -68,4 +68,15 @@ public class User {
     public void setLastLoginTime() {
         this.lastLoginTime = new Date().toInstant().getEpochSecond();
     }
+
+    public String getTotp() {
+        return "";
+    }
+
+    public void setTotp(String totp) {
+        if(totp == null) {
+            totp = "";
+        }
+        this.totp = totp;
+    }
 }
