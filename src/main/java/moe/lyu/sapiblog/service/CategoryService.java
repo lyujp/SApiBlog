@@ -99,9 +99,11 @@ public class CategoryService {
         }
     }
 
-    public Boolean delete(Integer id) throws CategoryNotFoundException {
+    public void delete(Integer id) throws CategoryNotFoundException {
         int effectRows = categoryMapper.deleteById(id);
-        return effectRows == 1;
+        if(effectRows == 0){
+            throw new CategoryNotFoundException(id.toString() + " does not exist");
+        }
     }
 
     public CategoryTreeDto tree(Integer categoryId) throws CategoryNotFoundException {

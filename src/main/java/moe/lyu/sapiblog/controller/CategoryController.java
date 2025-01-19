@@ -76,9 +76,9 @@ public class CategoryController {
 
     }
 
-    @PostMapping("/add")
-    public Resp addQuick(@RequestBody String name) throws JsonProcessingException, CategoryUnknownException {
-        Category added = categoryService.add(name);
+    @PostMapping("/add/uniq_name/{uniq_name}")
+    public Resp addQuick(@PathVariable String uniq_name) throws JsonProcessingException, CategoryUnknownException {
+        Category added = categoryService.add(uniq_name);
         return Resp.success(added);
     }
 
@@ -88,14 +88,17 @@ public class CategoryController {
         return Resp.success(update);
     }
 
-    @PostMapping("/delete")
-    public Resp delete(@RequestBody Integer ids) throws CategoryNotFoundException {
-        Boolean delete = categoryService.delete(ids);
-        if (delete) {
-            return Resp.success();
-        } else {
-            return Resp.error(-200, "Category delete failed");
-        }
+    @PostMapping("/delete/id/{category_id}")
+    public Resp deleteById(@PathVariable Integer category_id) throws CategoryNotFoundException {
+        categoryService.delete(category_id);
+        return Resp.success();
+    }
+
+    @PostMapping("/delete/uniq_name/{uniq_name}")
+    public Resp deleteByUniqName(@PathVariable String uniq_name) throws CategoryNotFoundException {
+        Category category = categoryService.getByUniqName(uniq_name);
+        categoryService.delete(category.getId());
+        return Resp.success();
     }
 
     @GetMapping("/tree/{category_id}")

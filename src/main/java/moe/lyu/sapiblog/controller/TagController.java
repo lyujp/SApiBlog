@@ -76,9 +76,9 @@ public class TagController {
 
     }
 
-    @PostMapping("/add")
-    public Resp addQuick(@RequestBody String name) throws JsonProcessingException, TagUnknownException {
-        Tag added = tagService.add(name);
+    @PostMapping("/add/uniq_name/{uniq_name}")
+    public Resp addQuick(@PathVariable String uniq_name) throws JsonProcessingException, TagUnknownException {
+        Tag added = tagService.add(uniq_name);
         return Resp.success(added);
     }
 
