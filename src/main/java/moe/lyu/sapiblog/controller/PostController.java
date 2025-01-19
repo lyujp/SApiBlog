@@ -29,23 +29,23 @@ public class PostController {
     }
 
     @PostMapping("/delete")
-    public Resp delete(@RequestBody long postId) {
+    public Resp delete(@RequestBody Integer postId) {
         postService.delete(postId);
         return Resp.success();
     }
 
     @AuthCheck(skipCheck = true)
     @GetMapping("/id/{postId}")
-    public Resp get(@PathVariable long postId) {
+    public Resp get(@PathVariable Integer postId) {
         Post post = postService.getById(postId);
         return Resp.success(post);
     }
 
     @AuthCheck(skipCheck = true)
     @GetMapping("/list")
-    public Resp list(@RequestParam(value = "true", required = false) boolean desc,
-                     @RequestParam(value = "1", required = false) int page,
-                     @RequestParam(value = "10", required = false) int size) {
+    public Resp list(@RequestParam(value = "true", required = false) Boolean desc,
+                     @RequestParam(value = "1", required = false) Integer page,
+                     @RequestParam(value = "10", required = false) Integer size) {
         List<PostWithoutContentDto> list = postService.list(desc, page, size);
         return Resp.success(list);
     }

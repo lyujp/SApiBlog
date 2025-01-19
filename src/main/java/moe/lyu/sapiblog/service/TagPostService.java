@@ -1,9 +1,7 @@
 package moe.lyu.sapiblog.service;
 
-import com.baomidou.mybatisplus.core.batch.MybatisBatch;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import moe.lyu.sapiblog.entity.Post;
-import moe.lyu.sapiblog.entity.Tag;
 import moe.lyu.sapiblog.entity.TagPost;
 import moe.lyu.sapiblog.exception.PostNotExistException;
 import moe.lyu.sapiblog.mapper.PostMapper;
@@ -11,48 +9,45 @@ import moe.lyu.sapiblog.mapper.TagMapper;
 import moe.lyu.sapiblog.mapper.TagPostDtoMapper;
 import moe.lyu.sapiblog.mapper.TagPostMapper;
 import moe.lyu.sapiblog.vo.TagPostVo;
-import org.apache.ibatis.executor.BatchResult;
-import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Service
 public class TagPostService {
 
-    private final SqlSessionFactory sqlSessionFactory;
     TagPostDtoMapper tagPostDtoMapper;
     TagPostMapper tagPostMapper;
     PostMapper postMapper;
     TagMapper tagMapper;
+    ITagPostService iTagPostService;
 
     @Autowired
     public TagPostService(TagPostDtoMapper tagPostDtoMapper,
                           TagPostMapper tagPostMapper,
-                          SqlSessionFactory sqlSessionFactory,
                           PostMapper postMapper,
-                          TagMapper tagMapper) {
+                          TagMapper tagMapper,
+                          ITagPostService iTagPostService) {
         this.tagPostDtoMapper = tagPostDtoMapper;
         this.tagPostMapper = tagPostMapper;
-        this.sqlSessionFactory = sqlSessionFactory;
         this.postMapper = postMapper;
         this.tagMapper = tagMapper;
+        this.iTagPostService = iTagPostService;
     }
 
     public List<TagPostVo> list(Integer tagId) {
         return tagPostDtoMapper.get(tagId);
     }
 
-    public Integer add(Integer postId, Integer tagId) {
+    public Boolean add(Integer postId, Integer tagId) {
         TagPost tagPost = new TagPost();
         tagPost.setTagId(tagId);
         tagPost.setPostId(postId);
         return addTagPost(List.of(tagPost));
     }
 
-    public Integer add(Integer postId, List<Integer> tagIds) {
+    public Boolean add(Integer postId, List<Integer> tagIds) {
         List<TagPost> tagPosts = tagIds.stream()
                 .map(tagId -> {
                     TagPost tagPost = new TagPost();
@@ -64,30 +59,21 @@ public class TagPostService {
         return addTagPost(tagPosts);
     }
 
-    public Integer add(TagPost tagPost) {
+    public Boolean add(TagPost tagPost) {
         return addTagPost(List.of(tagPost));
     }
 
-    private Integer addTagPost(List<TagPost> tagPosts) throws PostNotExistException {
-        if (tagPosts != null) {
-            Integer postId = tagPosts.get(0).getPostId();
-            Post post = postMapper.selectById(postId);
-            if (post == null) {
-                throw new PostNotExistException(postId.toString());
-            }
+    private Boolean addTagPost(List<TagPost> tagPosts) throws PostNotExistException {
+        if (tagPosts == null || tagPosts.isEmpty()) {
+            return false;
         }
-        List<Integer> tagIds = tagPosts.stream().map(TagPost::getTagId).toList();
-        LambdaQueryWrapper<Tag> tagLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        tagLambdaQueryWrapper.in(Tag::getId, tagIds);
+        Integer postId = tagPosts.get(0).getPostId();
+        Post post = postMapper.selectById(postId);
+        if (post == null) {
+            throw new PostNotExistException(postId.toString());
+        }
 
-        List<Integer> cids = tagMapper.selectList(tagLambdaQueryWrapper).stream().map(Tag::getId).toList();
-
-        List<TagPost> list = tagPosts.stream().filter(cp -> cids.contains(cp.getTagId())).toList();
-
-        MybatisBatch<TagPost> mybatisBatch = new MybatisBatch<>(sqlSessionFactory, list);
-        MybatisBatch.Method<TagPost> method = new MybatisBatch.Method<>(TagPost.class);
-        List<BatchResult> batchResults = mybatisBatch.execute(method.insert());
-        return batchResults.stream().flatMapToInt(br -> Arrays.stream(br.getUpdateCounts())).sum();
+        return iTagPostService.saveOrUpdateBatch(tagPosts);
     }
 
     public Integer deleteByPostId(Integer postId) {
@@ -104,5 +90,10 @@ public class TagPostService {
 
     public Integer deleteByTagPostId(Integer tagPostId) {
         return tagPostMapper.deleteById(tagPostId);
+    }
+
+
+    public List<TagPost> getByPostId(Integer postId) {
+        return tagPostMapper.selectList(new LambdaQueryWrapper<TagPost>().eq(TagPost::getPostId, postId));
     }
 }

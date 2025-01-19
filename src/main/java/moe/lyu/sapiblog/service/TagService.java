@@ -1,16 +1,16 @@
 package moe.lyu.sapiblog.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import moe.lyu.sapiblog.entity.Tag;
 import moe.lyu.sapiblog.exception.TagAlreadyExistException;
-import moe.lyu.sapiblog.exception.TagFieldNotFoundException;
 import moe.lyu.sapiblog.exception.TagNotFoundException;
 import moe.lyu.sapiblog.exception.TagUnknownException;
 import moe.lyu.sapiblog.mapper.TagMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,65 +24,87 @@ public class TagService {
         this.tagMapper = tagMapper;
     }
 
-    public List<Tag> list(Boolean orderByDesc, String orderField) throws TagFieldNotFoundException {
-        QueryWrapper<Tag> queryWrapper = new QueryWrapper<>();
-        Class<Tag> TagClass = Tag.class;
-        queryWrapper.ge("id", 0);
-        try {
-            TagClass.getDeclaredField(orderField);
-            if (orderByDesc) {
-                queryWrapper.orderByDesc(orderField);
-            } else {
-                queryWrapper.orderByAsc(orderField);
-            }
-        } catch (NoSuchFieldException ignored) {
-            throw new TagFieldNotFoundException(orderField);
-        }
-        return tagMapper.selectList(queryWrapper);
+    public List<Tag> list(Integer currentPage, Integer pageSize, Boolean desc) {
+        Page<Tag> page = new Page<>(currentPage, pageSize);
+        QueryWrapper<Tag> tagQueryWrapper = new QueryWrapper<>();
+        tagQueryWrapper.orderBy(true, !desc, "id");
+        page = tagMapper.selectPage(page, tagQueryWrapper);
+        return page.getRecords();
+    }
+
+    public List<Tag> listByPostId(Integer postId, Integer currentPage, Integer pageSize, Boolean desc) {
+        Page<Tag> page = new Page<>(currentPage, pageSize);
+        QueryWrapper<Tag> tagQueryWrapper = new QueryWrapper<>();
+        tagQueryWrapper.eq("post_id", postId);
+        tagQueryWrapper.orderBy(true, !desc, "id");
+        page = tagMapper.selectPage(page, tagQueryWrapper);
+        return page.getRecords();
     }
 
     public Tag getById(Integer id) throws TagNotFoundException {
-        QueryWrapper<Tag> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("id", id);
-        Tag Tag = tagMapper.selectOne(queryWrapper);
-        if (Tag == null) {
-            throw new TagNotFoundException(id.toString());
+        LambdaQueryWrapper<Tag> tagLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        tagLambdaQueryWrapper.eq(Tag::getId, id);
+        Tag tag = tagMapper.selectOne(tagLambdaQueryWrapper);
+        if (tag == null) {
+            throw new TagNotFoundException(id.toString() + " not found");
         } else {
-            return Tag;
+            return tag;
         }
     }
 
     public Tag getByUniqName(String name) throws TagNotFoundException {
-        QueryWrapper<Tag> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("uniq_name", name);
-        Tag Tag = tagMapper.selectOne(queryWrapper);
-        if (Tag == null) {
-            throw new TagNotFoundException(name);
+        LambdaQueryWrapper<Tag> tagLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        tagLambdaQueryWrapper.eq(Tag::getUniqName, name);
+        Tag tag = tagMapper.selectOne(tagLambdaQueryWrapper);
+        if (tag == null) {
+            throw new TagNotFoundException(name + "not found");
         } else {
-            return Tag;
+            return tag;
         }
     }
 
-    public Tag add(Tag Tag) throws TagAlreadyExistException, JsonProcessingException {
+    public Tag add(Tag tag) throws JsonProcessingException, TagAlreadyExistException {
+        if (tagMapper.selectById(tag.getId()) == null) {
+            throw new TagAlreadyExistException(tag.getId().toString() + " already exist");
+        }
         try {
-            int effectRows = tagMapper.insert(Tag);
+            int effectRows = tagMapper.insert(tag);
             if (effectRows == 1) {
-                return Tag;
-            } else {
-                throw new TagUnknownException(new ObjectMapper().writeValueAsString(Tag));
+                return tag;
             }
-        } catch (DuplicateKeyException e) {
-            throw new TagAlreadyExistException(Tag.getUniqName());
+        } catch (Exception ignored) {
         }
-
+        throw new TagUnknownException(new ObjectMapper().writeValueAsString(tag));
     }
 
-    public Tag update(Tag Tag) throws TagNotFoundException {
-        int effectRows = tagMapper.updateById(Tag);
+    public Tag add(String name) throws JsonProcessingException, TagUnknownException {
+        LambdaQueryWrapper<Tag> tagLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        tagLambdaQueryWrapper.likeRight(Tag::getName, name);
+        List<String> tagUniqNames = tagMapper.selectList(tagLambdaQueryWrapper).stream().map(Tag::getUniqName).toList();
+        String uniqName = name.toLowerCase().trim();
+        while (tagUniqNames.contains(uniqName)) {
+            uniqName += "_";
+        }
+
+        Tag tag = new Tag();
+        tag.setName(name);
+        tag.setUniqName(uniqName);
+        try {
+            int effectRows = tagMapper.insert(tag);
+            if (effectRows == 1) {
+                return tag;
+            }
+        } catch (Exception ignored) {
+        }
+        throw new TagUnknownException(new ObjectMapper().writeValueAsString(tag));
+    }
+
+    public Tag update(Tag tag) throws TagNotFoundException {
+        int effectRows = tagMapper.updateById(tag);
         if (effectRows == 1) {
-            return Tag;
+            return tag;
         } else {
-            throw new TagNotFoundException(Tag.getId().toString());
+            throw new TagNotFoundException(tag.getId().toString());
         }
     }
 

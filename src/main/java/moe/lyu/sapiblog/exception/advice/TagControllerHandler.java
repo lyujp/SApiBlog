@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import moe.lyu.sapiblog.controller.TagController;
 import moe.lyu.sapiblog.dto.Resp;
 import moe.lyu.sapiblog.exception.TagAlreadyExistException;
-import moe.lyu.sapiblog.exception.TagFieldNotFoundException;
 import moe.lyu.sapiblog.exception.TagNotFoundException;
 import moe.lyu.sapiblog.exception.TagUnknownException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -12,11 +11,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice(assignableTypes = {TagController.class})
 public class TagControllerHandler {
-
-    @ExceptionHandler(TagFieldNotFoundException.class)
-    public Resp handleTagFieldNotFound(TagFieldNotFoundException e) {
-        return Resp.error(-400, "Tag field '" + e.getMessage() + "' required not found");
-    }
 
     @ExceptionHandler(TagNotFoundException.class)
     public Resp handleTagNotFound(TagNotFoundException e) {

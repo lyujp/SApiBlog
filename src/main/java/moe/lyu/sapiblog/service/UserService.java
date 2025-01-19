@@ -8,8 +8,8 @@ import moe.lyu.sapiblog.entity.User;
 import moe.lyu.sapiblog.exception.UserJwtVerifyFailedException;
 import moe.lyu.sapiblog.exception.UserLoginFailed;
 import moe.lyu.sapiblog.mapper.UserMapper;
-import moe.lyu.sapiblog.mapper.UserToUserWithoutSensitiveDtoMapper;
 import moe.lyu.sapiblog.utils.Jwt;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +23,12 @@ public class UserService {
     @Autowired
     public UserService(UserMapper userMapper) {
         this.userMapper = userMapper;
+    }
+
+    private static UserWithoutSensitiveDto userToUserWithoutSensitiveDto(User user) {
+        UserWithoutSensitiveDto userWithoutSensitiveDto = new UserWithoutSensitiveDto();
+        BeanUtils.copyProperties(user, userWithoutSensitiveDto);
+        return userWithoutSensitiveDto;
     }
 
     public UserWithoutSensitiveDto login(String username, String password) throws NoSuchAlgorithmException, UserLoginFailed {
@@ -52,7 +58,7 @@ public class UserService {
         user.setJwt(payload);
         userMapper.updateById(user);
 
-        return UserToUserWithoutSensitiveDtoMapper.userToUserWithoutSensitiveDto(userDb);
+        return userToUserWithoutSensitiveDto(userDb);
     }
 
     public Boolean register(User user) {
@@ -75,7 +81,7 @@ public class UserService {
             throw new UserJwtVerifyFailedException("Jwt not exist");
         }
 
-        return UserToUserWithoutSensitiveDtoMapper.userToUserWithoutSensitiveDto(user);
+        return userToUserWithoutSensitiveDto(user);
     }
 
     public UserWithoutSensitiveDto jwtVerify(String token) throws UserJwtVerifyFailedException {

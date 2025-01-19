@@ -42,14 +42,14 @@ public class PostService {
         }
     }
 
-    public Boolean delete(long id) {
+    public Boolean delete(Integer id) {
         if (postMapper.deleteById(id) != 1) {
             throw new PostNotExistException("Post with id " + id + " not exist");
         }
         return true;
     }
 
-    public List<PostWithoutContentDto> list(boolean desc, int currentPage, int pageSize) {
+    public List<PostWithoutContentDto> list(Boolean desc, Integer currentPage, Integer pageSize) {
         Page<Post> page = new Page<>(currentPage, pageSize);
         QueryWrapper<Post> postQueryWrapper = new QueryWrapper<>();
         postQueryWrapper.orderBy(true, !desc, "id");
@@ -62,7 +62,7 @@ public class PostService {
         }).toList();
     }
 
-    public Post getById(long id) {
+    public Post getById(Integer id) {
         Post post = postMapper.selectById(id);
         if (post == null) {
             throw new PostNotExistException("Post with id " + id + " not exist");
