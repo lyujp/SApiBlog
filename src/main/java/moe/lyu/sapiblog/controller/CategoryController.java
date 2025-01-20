@@ -2,7 +2,6 @@ package moe.lyu.sapiblog.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import moe.lyu.sapiblog.annotation.AuthCheck;
-import moe.lyu.sapiblog.dto.CategoryTreeDto;
 import moe.lyu.sapiblog.dto.Resp;
 import moe.lyu.sapiblog.entity.Category;
 import moe.lyu.sapiblog.exception.CategoryAddFailedException;
@@ -94,12 +93,5 @@ public class CategoryController {
     public Resp deleteByName(@PathVariable String name) throws CategoryNotFoundException {
         categoryService.delete(name);
         return Resp.success();
-    }
-
-    @GetMapping("/tree/{category_id}")
-    @AuthCheck(skipCheck = true)
-    public Resp tree(@PathVariable Integer category_id) throws CategoryNotFoundException {
-        CategoryTreeDto tree = categoryService.tree(category_id);
-        return Resp.success(tree);
     }
 }

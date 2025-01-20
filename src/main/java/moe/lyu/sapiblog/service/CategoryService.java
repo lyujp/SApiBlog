@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWra
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import moe.lyu.sapiblog.dto.CategoryTreeDto;
 import moe.lyu.sapiblog.entity.Category;
 import moe.lyu.sapiblog.entity.CategoryPost;
 import moe.lyu.sapiblog.exception.CategoryAddFailedException;
@@ -93,7 +92,7 @@ public class CategoryService {
         return categoryMapper.selectById(category.getId());
     }
 
-    public Category update(Category category) throws CategoryNotFoundException, CategoryUnknownException, JsonProcessingException {
+    public Category update(Category category) throws CategoryNotFoundException, JsonProcessingException {
         if (category == null) throw new CategoryNotFoundException("Category can't be null");
         if (category.getId() == null) throw new CategoryNotFoundException("Category id can't be null");
         if (category.getName() == null) throw new CategoryNotFoundException("Category name can't be null");
@@ -122,21 +121,5 @@ public class CategoryService {
         if (!remove) {
             throw new CategoryNotFoundException(name + " does not exist");
         }
-    }
-
-    public CategoryTreeDto tree(Integer categoryId) throws CategoryNotFoundException {
-        if (categoryId == null) categoryId = 0;
-        CategoryTreeDto treeDto = new CategoryTreeDto();
-        LambdaQueryChainWrapper<Category> categoryLambdaQueryChainWrapper = new LambdaQueryChainWrapper<>(categoryMapper);
-        Category category = categoryLambdaQueryChainWrapper.eq(Category::getId, categoryId).one();
-        if (category == null) {
-            throw new CategoryNotFoundException(categoryId + " not found");
-        }
-
-        BeanUtils.copyProperties(category, treeDto);
-        if (category.getParentId() != 0) {
-            treeDto.setParentCategory(tree(category.getParentId()));
-        }
-        return treeDto;
     }
 }

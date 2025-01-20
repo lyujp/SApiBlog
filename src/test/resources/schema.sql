@@ -1,23 +1,22 @@
-create table category
+create table public.category
 (
     id          serial
         constraint category_pk
             primary key,
-    name        varchar default 'UnTittled'::character varying not null,
-    uniq_name   varchar default 'default'::character varying   not null
-        constraint category_pk_2
+    name        varchar default 'UnTittled'::character varying not null
+        constraint category_pk_3
             unique,
     parent_id   integer default 0                              not null,
     create_time bigint,
     update_time bigint
 );
 
-comment on table category is '分类';
+comment on table public.category is '分类';
 
-alter table category
+alter table public.category
     owner to postgres;
 
-create table category_post
+create table public.category_post
 (
     id          serial
         constraint category_post_pk
@@ -25,30 +24,29 @@ create table category_post
     post_id     integer not null,
     category_id integer,
     create_time bigint,
-    update_time bigint
+    update_time bigint,
+    constraint category_post_pk_2
+        unique (post_id, category_id)
 );
 
-alter table category_post
+alter table public.category_post
     owner to postgres;
 
-create table setting
+create table public.setting
 (
-    id          serial
-        constraint setting_pk_2
-            primary key,
     k           varchar               not null
         constraint setting_pk
-            unique,
+            primary key,
     v           varchar,
     option_type boolean default false not null,
     create_time bigint,
     update_time bigint
 );
 
-alter table setting
+alter table public.setting
     owner to postgres;
 
-create table post
+create table public.post
 (
     id          serial
         constraint post_pk
@@ -64,26 +62,25 @@ create table post
     summary     varchar
 );
 
-alter table post
+alter table public.post
     owner to postgres;
 
-create table tag
+create table public.tag
 (
     id          serial
         constraint tag_pk
             primary key,
-    name        varchar,
-    uniq_name   varchar
-        constraint tag_pk_2
+    name        varchar
+        constraint tag_pk_3
             unique,
     create_time bigint,
     update_time bigint
 );
 
-alter table tag
+alter table public.tag
     owner to postgres;
 
-create table tag_post
+create table public.tag_post
 (
     id          serial
         constraint tag_post_pk
@@ -94,10 +91,10 @@ create table tag_post
     update_time bigint
 );
 
-alter table tag_post
+alter table public.tag_post
     owner to postgres;
 
-create table "user"
+create table public."user"
 (
     id              serial
         constraint user_pk
@@ -119,6 +116,6 @@ create table "user"
     last_login_time bigint
 );
 
-alter table "user"
+alter table public."user"
     owner to postgres;
 
