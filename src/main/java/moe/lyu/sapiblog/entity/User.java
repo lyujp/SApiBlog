@@ -74,7 +74,7 @@ public class User {
     }
 
     public void setTotp(String totp) {
-        if(totp == null) {
+        if (totp == null) {
             totp = "";
         }
         this.totp = totp;

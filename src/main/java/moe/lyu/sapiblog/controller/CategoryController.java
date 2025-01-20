@@ -50,13 +50,6 @@ public class CategoryController {
         return Resp.success(categories);
     }
 
-    @GetMapping("/get/uniq_name/{uniq_name}")
-    @AuthCheck(skipCheck = true)
-    public Resp getByUniqName(@PathVariable String uniq_name) throws CategoryNotFoundException {
-        Category category = categoryService.getByUniqName(uniq_name);
-        return Resp.success(category);
-    }
-
     @GetMapping("/get/name/{name}")
     @AuthCheck(skipCheck = true)
     public Resp getByName(@PathVariable String name) throws CategoryNotFoundException {
@@ -70,7 +63,6 @@ public class CategoryController {
         Category category = new Category();
         try {
             category.setName(arg.get("name"));
-            category.setUniqName(arg.get("uniq_name"));
             category.setParentId(Integer.parseInt(arg.get("parent_id")));
         } catch (Exception e) {
             return Resp.error(-200, "Category args is invalid", arg);
@@ -81,13 +73,13 @@ public class CategoryController {
     }
 
     @PostMapping("/add/name/{name}")
-    public Resp addQuick(@PathVariable String name) throws JsonProcessingException, CategoryUnknownException, CategoryAddFailedException{
+    public Resp addQuick(@PathVariable String name) throws JsonProcessingException, CategoryUnknownException, CategoryAddFailedException {
         Category added = categoryService.add(name);
         return Resp.success(added);
     }
 
     @PostMapping("/update")
-    public Resp update(@RequestBody Category category) throws CategoryNotFoundException, CategoryUnknownException {
+    public Resp update(@RequestBody Category category) throws CategoryNotFoundException, CategoryUnknownException, JsonProcessingException {
         Category update = categoryService.update(category);
         return Resp.success(update);
     }
@@ -98,17 +90,9 @@ public class CategoryController {
         return Resp.success();
     }
 
-    @PostMapping("/delete/uniq_name/{uniq_name}")
-    public Resp deleteByUniqName(@PathVariable String uniq_name) throws CategoryNotFoundException {
-        Category category = categoryService.getByUniqName(uniq_name);
-        categoryService.delete(category.getId());
-        return Resp.success();
-    }
-
     @PostMapping("/delete/name/{name}")
     public Resp deleteByName(@PathVariable String name) throws CategoryNotFoundException {
-        Category category = categoryService.getByName(name);
-        categoryService.delete(category.getId());
+        categoryService.delete(name);
         return Resp.success();
     }
 

@@ -1,6 +1,5 @@
 package moe.lyu.sapiblog.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -36,13 +35,13 @@ public class UserService {
     }
 
     public UserWithoutSensitiveDto login(String username, String password, String totp) throws NoSuchAlgorithmException, UserLoginFailed {
-        if(username == null || password == null || username.isEmpty() || password.isEmpty()) {
+        if (username == null || password == null || username.isEmpty() || password.isEmpty()) {
             throw new UserLoginFailed("Username or password is empty");
         }
 
         LambdaQueryChainWrapper<User> userLambdaQueryChainWrapper = new LambdaQueryChainWrapper<>(userMapper);
         User userDb = userLambdaQueryChainWrapper.eq(User::getUsername, username).one();
-        if(userDb == null) {
+        if (userDb == null) {
             throw new UserLoginFailed("Username is invalid");
         }
 
@@ -52,7 +51,7 @@ public class UserService {
             throw new UserLoginFailed("Username or password is invalid");
         }
 
-        if(!userDb.getTotp().isEmpty() && !userDb.getTotp().equals(totp)) {
+        if (!userDb.getTotp().isEmpty() && !userDb.getTotp().equals(totp)) {
             throw new UserLoginFailed("Totp is invalid");
         }
 
@@ -67,8 +66,8 @@ public class UserService {
         LambdaUpdateChainWrapper<User> userLambdaUpdateChainWrapper = new LambdaUpdateChainWrapper<>(userMapper);
         userLambdaUpdateChainWrapper
                 .set(User::getId, userDb.getId())
-                .set(User::getJwt,payload)
-                .set(User::getLastLoginTime,userDb.getLastLoginTime())
+                .set(User::getJwt, payload)
+                .set(User::getLastLoginTime, userDb.getLastLoginTime())
                 .eq(User::getId, userDb.getId())
                 .update();
         return userToUserWithoutSensitiveDto(userDb);
@@ -77,14 +76,14 @@ public class UserService {
     public void register(User user) throws UserRegisterFailedException {
         LambdaUpdateChainWrapper<User> userLambdaUpdateChainWrapper = new LambdaUpdateChainWrapper<>(userMapper);
         boolean update = userLambdaUpdateChainWrapper.setEntity(user).update();
-        if(!update) {
+        if (!update) {
             throw new UserRegisterFailedException("Register failed");
         }
 
     }
 
     public void update(User user) throws UserUpdateFailedException {
-        if(userMapper.updateById(user) == 0){
+        if (userMapper.updateById(user) == 0) {
             throw new UserUpdateFailedException("");
         }
     }
@@ -93,10 +92,8 @@ public class UserService {
 
         UserWithoutSensitiveDto userWithoutSensitiveDto = jwtDbVerify(token);
 
-        LambdaQueryWrapper<User> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.eq(User::getJwt, token).eq(User::getId, userWithoutSensitiveDto.getId());
-
-        User user = userMapper.selectOne(lambdaQueryWrapper);
+        LambdaQueryChainWrapper<User> userLambdaQueryChainWrapper = new LambdaQueryChainWrapper<>(userMapper);
+        User user = userLambdaQueryChainWrapper.eq(User::getJwt, token).eq(User::getId, userWithoutSensitiveDto.getId()).one();
         if (user == null) {
             throw new UserJwtVerifyFailedException("Jwt not exist");
         }

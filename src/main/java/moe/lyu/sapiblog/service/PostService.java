@@ -1,6 +1,6 @@
 package moe.lyu.sapiblog.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import moe.lyu.sapiblog.dto.PostWithoutContentDto;
 import moe.lyu.sapiblog.entity.Post;
@@ -25,7 +25,7 @@ public class PostService {
     }
 
     public Post update(Post post) throws PostNotExistException {
-        if(post == null) throw new PostNotExistException("Post can't be null");
+        if (post == null) throw new PostNotExistException("Post can't be null");
         if (post.getId() == null) {
             int effectRows = postMapper.insert(post);
             if (effectRows == 1) {
@@ -44,19 +44,21 @@ public class PostService {
     }
 
     public void delete(Integer id) {
-        if(id == null) return ;
+        if (id == null) return;
         if (postMapper.deleteById(id) != 1) {
             throw new PostNotExistException("Post with id " + id + " not exist");
         }
     }
 
     public List<PostWithoutContentDto> list(Integer currentPage, Integer pageSize, Boolean desc) {
-        Page<Post> page = new Page<>(currentPage, pageSize);
-        QueryWrapper<Post> postQueryWrapper = new QueryWrapper<>();
-        postQueryWrapper.orderBy(true, !desc, "id");
-        page = postMapper.selectPage(page, postQueryWrapper);
 
-        return page.getRecords().stream().map(post -> {
+        Page<Post> page = new Page<>(currentPage, pageSize);
+
+        LambdaQueryChainWrapper<Post> postLambdaQueryChainWrapper = new LambdaQueryChainWrapper<>(postMapper);
+        List<Post> posts = postLambdaQueryChainWrapper.orderBy(true, !desc, Post::getId).page(page).getRecords();
+
+
+        return posts.stream().map(post -> {
             PostWithoutContentDto postWithoutContentDto = new PostWithoutContentDto();
             BeanUtils.copyProperties(post, postWithoutContentDto);
             return postWithoutContentDto;

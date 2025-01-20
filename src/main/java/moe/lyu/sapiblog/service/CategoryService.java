@@ -1,8 +1,5 @@
 package moe.lyu.sapiblog.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -12,7 +9,6 @@ import moe.lyu.sapiblog.dto.CategoryTreeDto;
 import moe.lyu.sapiblog.entity.Category;
 import moe.lyu.sapiblog.entity.CategoryPost;
 import moe.lyu.sapiblog.exception.CategoryAddFailedException;
-import moe.lyu.sapiblog.exception.CategoryAlreadyExistException;
 import moe.lyu.sapiblog.exception.CategoryNotFoundException;
 import moe.lyu.sapiblog.exception.CategoryUnknownException;
 import moe.lyu.sapiblog.mapper.CategoryMapper;
@@ -22,8 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 public class CategoryService {
@@ -40,125 +34,93 @@ public class CategoryService {
         Page<Category> page = new Page<>(currentPage, pageSize);
         LambdaQueryChainWrapper<Category> categoryLambdaQueryChainWrapper = new LambdaQueryChainWrapper<>(categoryMapper);
         return categoryLambdaQueryChainWrapper
-                .orderBy(true, !desc,Category::getId).page(page).getRecords();
+                .orderBy(true, !desc, Category::getId).page(page).getRecords();
     }
 
     public List<Category> listByPostId(Integer postId) {
         if (postId == null) postId = 0;
         LambdaQueryChainWrapper<CategoryPost> categoryLambdaQueryChainWrapper = new LambdaQueryChainWrapper<>(categoryPostMapper);
         List<Integer> categoryIds = categoryLambdaQueryChainWrapper.eq(CategoryPost::getPostId, postId).list()
-                                       .stream().map(CategoryPost::getCategoryId).toList();
+                .stream().map(CategoryPost::getCategoryId).toList();
         LambdaQueryChainWrapper<Category> categoryLambdaWrapper = new LambdaQueryChainWrapper<>(categoryMapper);
         return categoryLambdaWrapper.in(Category::getId, categoryIds).list();
     }
 
-    public Category getByUniqName(String uniqName) throws CategoryNotFoundException {
-        if(uniqName == null || uniqName.isEmpty()) throw new CategoryNotFoundException("Uniq name can't be empty");
-        LambdaQueryChainWrapper<Category> categoryLambdaQueryChainWrapper = new LambdaQueryChainWrapper<>(categoryMapper);
-        Category category = categoryLambdaQueryChainWrapper.eq(Category::getUniqName, uniqName).one();
-        if(category == null) {
-            throw new CategoryNotFoundException(uniqName);
-        }
-        return category;
-    }
-
     public Category getByName(String name) throws CategoryNotFoundException {
-        if(name == null || name.isEmpty()) throw new CategoryNotFoundException("Name can't be empty");
+        if (name == null || name.isEmpty()) throw new CategoryNotFoundException("Name can't be empty");
         LambdaQueryChainWrapper<Category> categoryLambdaQueryChainWrapper = new LambdaQueryChainWrapper<>(categoryMapper);
         Category category = categoryLambdaQueryChainWrapper.eq(Category::getName, name).one();
-        if(category == null) {
+        if (category == null) {
             throw new CategoryNotFoundException(name);
         }
         return category;
     }
 
-    public Category add(Category category) throws JsonProcessingException, CategoryAlreadyExistException, CategoryAddFailedException, CategoryUnknownException {
-        if(category == null) throw new CategoryAddFailedException("Category can't be null");
-        if (category.getName() == null || category.getName().isEmpty()) throw new CategoryAddFailedException("Category name can't be empty");
-        if (category.getUniqName() == null || category.getUniqName().isEmpty()) throw new CategoryAddFailedException("Category uniqName can't be empty");
+    public Category add(Category category) throws JsonProcessingException, CategoryAddFailedException, CategoryUnknownException {
+        if (category == null) throw new CategoryAddFailedException("Category can't be null");
+        if (category.getName() == null || category.getName().isEmpty())
+            throw new CategoryAddFailedException("Category name can't be empty");
 
         LambdaQueryChainWrapper<Category> categoryByNameLambdaQueryWrapper = new LambdaQueryChainWrapper<>(categoryMapper);
         Category categoryByName = categoryByNameLambdaQueryWrapper.eq(Category::getName, category.getName()).one();
-        if(categoryByName != null) {
-            return category;
-        }
-
-        LambdaQueryChainWrapper<Category> categoryByUniqNameLambdaQueryWrapper = new LambdaQueryChainWrapper<>(categoryMapper);
-        Category categoryByUniqName = categoryByUniqNameLambdaQueryWrapper.eq(Category::getUniqName, category.getUniqName()).one();
-        if(categoryByUniqName != null) {
+        if (categoryByName != null) {
             return category;
         }
 
         int insert = categoryMapper.insert(category);
-        if(insert == 0) {
+        if (insert == 0) {
             throw new CategoryAddFailedException("Unknown Exception");
         }
 
-        categoryByUniqNameLambdaQueryWrapper = new LambdaQueryChainWrapper<>(categoryMapper);
-        Category one = categoryByUniqNameLambdaQueryWrapper.eq(Category::getUniqName, category.getUniqName()).one();
-        if(one == null) {
+        categoryByNameLambdaQueryWrapper = new LambdaQueryChainWrapper<>(categoryMapper);
+        categoryByName = categoryByNameLambdaQueryWrapper.eq(Category::getName, category.getName()).one();
+        if (categoryByName == null) {
             throw new CategoryUnknownException("Unknown Exception");
         }
-        return one;
+        return categoryByName;
     }
 
     public Category add(String name) throws JsonProcessingException, CategoryUnknownException, CategoryAddFailedException {
         if (name == null || name.isEmpty()) throw new CategoryAddFailedException("Category name can't be empty");
 
-        LambdaQueryChainWrapper<Category> categoryLambdaQueryChainWrapper = new LambdaQueryChainWrapper<>(categoryMapper);
-        Category category = categoryLambdaQueryChainWrapper.eq(Category::getName, name).one();
-        if(category != null) {
-            return category;
-        }
-        String uniqName = name.toLowerCase().trim();
+        Category category = new Category();
+        category.setName(name);
 
-        categoryLambdaQueryChainWrapper = new LambdaQueryChainWrapper<>(categoryMapper);
-        List<String> categoryUniqNames = categoryLambdaQueryChainWrapper.likeRight(Category::getUniqName, uniqName).list()
-                                    .stream().map(Category::getUniqName).toList();
-
-
-        while (categoryUniqNames.contains(uniqName)) {
-            uniqName += "_";
-        }
-
-        LambdaUpdateChainWrapper<Category> categoryLambdaUpdateChainWrapper = new LambdaUpdateChainWrapper<>(categoryMapper);
-        categoryLambdaUpdateChainWrapper.set(Category::getUniqName, uniqName)
-                .set(Category::getName, name)
-                .set(Category::getParentId, 0).update();
-
-        categoryLambdaQueryChainWrapper = new LambdaQueryChainWrapper<>(categoryMapper);
-        Category one = categoryLambdaQueryChainWrapper.eq(Category::getName, name).one();
-        if(one == null) {
+        int insert = categoryMapper.insert(category);
+        if (insert == 0) {
             throw new CategoryUnknownException("Unknown Exception");
         }
-       return one;
+        return categoryMapper.selectById(category.getId());
     }
 
-    public Category update(Category category) throws CategoryNotFoundException,CategoryUnknownException {
-        if(category == null) throw new CategoryNotFoundException("Category can't be null");
-        if(category.getId() == null) throw new CategoryNotFoundException("Category id can't be null");
+    public Category update(Category category) throws CategoryNotFoundException, CategoryUnknownException, JsonProcessingException {
+        if (category == null) throw new CategoryNotFoundException("Category can't be null");
+        if (category.getId() == null) throw new CategoryNotFoundException("Category id can't be null");
+        if (category.getName() == null) throw new CategoryNotFoundException("Category name can't be null");
 
-        LambdaUpdateChainWrapper<Category> categoryLambdaUpdateChainWrapper = new LambdaUpdateChainWrapper<>(categoryMapper);
-        boolean update = categoryLambdaUpdateChainWrapper.setEntity(category).update();
-        if(!update) {
-            throw new CategoryNotFoundException(category.getId().toString());
+        int i = categoryMapper.updateById(category);
+        if (i == 0) {
+            throw new CategoryNotFoundException(new ObjectMapper().writeValueAsString(category));
         }
-
-        LambdaQueryChainWrapper<Category> categoryLambdaQueryChainWrapper = new LambdaQueryChainWrapper<>(categoryMapper);
-        Category one = categoryLambdaQueryChainWrapper.eq(Category::getUniqName, category.getUniqName()).one();
-        if(one == null) {
-            throw new CategoryUnknownException("Unknown Exception");
-        }
-        return one;
+        return categoryMapper.selectById(category.getId());
     }
 
     public void delete(Integer id) throws CategoryNotFoundException {
         if (id == null) return;
 
+        int i = categoryMapper.deleteById(id);
+        if (i == 0) {
+            throw new CategoryNotFoundException(id + " does not exist");
+        }
+    }
+
+    public void delete(String name) throws CategoryNotFoundException {
+        if (name == null || name.isEmpty()) return;
+
         LambdaUpdateChainWrapper<Category> categoryLambdaUpdateChainWrapper = new LambdaUpdateChainWrapper<>(categoryMapper);
-        boolean remove = categoryLambdaUpdateChainWrapper.eq(Category::getId, id).remove();
-        if(!remove){
-            throw new CategoryNotFoundException(id.toString() + " does not exist");
+        boolean remove = categoryLambdaUpdateChainWrapper.eq(Category::getName, name).remove();
+        if (!remove) {
+            throw new CategoryNotFoundException(name + " does not exist");
         }
     }
 

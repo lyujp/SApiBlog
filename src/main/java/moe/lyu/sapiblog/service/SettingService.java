@@ -1,6 +1,6 @@
 package moe.lyu.sapiblog.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import moe.lyu.sapiblog.entity.Setting;
 import moe.lyu.sapiblog.mapper.SettingMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +23,8 @@ public class SettingService {
     }
 
     public List<Setting> list(Boolean isCustom) {
-        LambdaQueryWrapper<Setting> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.eq(Setting::getOptionType, isCustom);
-        return settingMapper.selectList(lambdaQueryWrapper);
+        LambdaQueryChainWrapper<Setting> settingLambdaQueryChainWrapper = new LambdaQueryChainWrapper<>(settingMapper);
+        return settingLambdaQueryChainWrapper.eq(Setting::getOptionType, isCustom).list();
     }
 
     public void update(List<Setting> settings) {

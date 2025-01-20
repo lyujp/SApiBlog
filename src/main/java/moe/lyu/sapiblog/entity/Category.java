@@ -12,7 +12,6 @@ public class Category {
     private Integer id;
     private String name;
     private Integer parentId;
-    private String uniqName;
     @TableField(fill = FieldFill.INSERT)
     private Long createTime;
     @TableField(fill = FieldFill.INSERT_UPDATE)
@@ -23,9 +22,5 @@ public class Category {
             parentId = 0;
         }
         this.parentId = parentId;
-    }
-
-    public void setUniqName(String uniqName) {
-        this.uniqName = uniqName.toLowerCase().trim();
     }
 }

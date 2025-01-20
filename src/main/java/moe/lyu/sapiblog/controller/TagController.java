@@ -3,9 +3,11 @@ package moe.lyu.sapiblog.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import moe.lyu.sapiblog.annotation.AuthCheck;
 import moe.lyu.sapiblog.dto.Resp;
-import moe.lyu.sapiblog.entity.Category;
 import moe.lyu.sapiblog.entity.Tag;
-import moe.lyu.sapiblog.exception.*;
+import moe.lyu.sapiblog.exception.TagAddFailedException;
+import moe.lyu.sapiblog.exception.TagAlreadyExistException;
+import moe.lyu.sapiblog.exception.TagNotFoundException;
+import moe.lyu.sapiblog.exception.TagUnknownException;
 import moe.lyu.sapiblog.service.TagPostService;
 import moe.lyu.sapiblog.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,20 +49,12 @@ public class TagController {
         return Resp.success(categories);
     }
 
-    @GetMapping("/get/{uniq_name}")
-    @AuthCheck(skipCheck = true)
-    public Resp getByUniqName(@PathVariable String uniq_name) throws TagNotFoundException {
-        Tag tag = tagService.getByUniqName(uniq_name);
-        return Resp.success(tag);
-    }
-
     @PostMapping("/add")
     public Resp add(@RequestBody Map<String, String> arg)
             throws JsonProcessingException, TagAlreadyExistException, TagAddFailedException, TagUnknownException {
         Tag tag = new Tag();
         try {
             tag.setName(arg.get("name"));
-            tag.setUniqName(arg.get("uniq_name"));
         } catch (Exception e) {
             return Resp.error(-200, "Tag args is invalid", arg);
         }
@@ -76,7 +70,7 @@ public class TagController {
     }
 
     @PostMapping("/update")
-    public Resp update(@RequestBody Tag tag) throws TagNotFoundException, TagUnknownException {
+    public Resp update(@RequestBody Tag tag) throws TagNotFoundException, TagUnknownException, JsonProcessingException {
         Tag update = tagService.update(tag);
         return Resp.success(update);
     }
@@ -87,17 +81,10 @@ public class TagController {
         return Resp.success();
     }
 
-    @PostMapping("/delete/uniq_name/{uniq_name}")
-    public Resp deleteByUniqName(@PathVariable String uniq_name) throws TagNotFoundException {
-        Tag tag = tagService.getByUniqName(uniq_name);
-        tagService.delete(tag.getId());
-        return Resp.success();
-    }
 
     @PostMapping("/delete/name/{name}")
     public Resp deleteByName(@PathVariable String name) throws TagNotFoundException {
-        Tag tag = tagService.getByName(name);
-        tagService.delete(tag.getId());
+        tagService.delete(name);
         return Resp.success();
     }
 }

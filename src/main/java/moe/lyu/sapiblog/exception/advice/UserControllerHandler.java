@@ -14,23 +14,23 @@ import java.security.NoSuchAlgorithmException;
 public class UserControllerHandler {
 
     @ExceptionHandler(UserLoginFailed.class)
-    public Resp handleUserLoginFailed(UserLoginFailed e){
-        return Resp.error(-200,e.getMessage());
+    public Resp handleUserLoginFailed(UserLoginFailed e) {
+        return Resp.error(-200, e.getMessage());
     }
 
     @ExceptionHandler(UserUpdateFailedException.class)
-    public Resp handleUserUpdateFailedException(UserUpdateFailedException e){
-        return Resp.error(-200,e.getMessage());
+    public Resp handleUserUpdateFailedException(UserUpdateFailedException e) {
+        return Resp.error(-200, e.getMessage());
     }
 
     @ExceptionHandler(NoSuchAlgorithmException.class)
-    public Resp handleNoSuchAlgorithmException(NoSuchAlgorithmException e){
-        return Resp.error(-500,e.getMessage());
+    public Resp handleNoSuchAlgorithmException(NoSuchAlgorithmException e) {
+        return Resp.error(-500, e.getMessage());
     }
 
     @ExceptionHandler(JsonProcessingException.class)
-    public Resp handleJsonProcessingException(JsonProcessingException e){
-        return Resp.error(-500,e.getMessage());
+    public Resp handleJsonProcessingException(JsonProcessingException e) {
+        return Resp.error(-500, e.getMessage());
     }
 
 }

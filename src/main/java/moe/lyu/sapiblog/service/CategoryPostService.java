@@ -1,10 +1,7 @@
 package moe.lyu.sapiblog.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import moe.lyu.sapiblog.entity.Category;
 import moe.lyu.sapiblog.entity.CategoryPost;
 import moe.lyu.sapiblog.entity.Post;
@@ -57,7 +54,7 @@ public class CategoryPostService {
             CategoryNotFoundException {
         LambdaQueryChainWrapper<CategoryPost> categoryPostLambdaQueryChainWrapper = new LambdaQueryChainWrapper<>(categoryPostMapper);
         CategoryPost one = categoryPostLambdaQueryChainWrapper.eq(CategoryPost::getPostId, postId).eq(CategoryPost::getCategoryId, categoryId).one();
-        if(one != null) {
+        if (one != null) {
             return;
         }
 
@@ -83,13 +80,13 @@ public class CategoryPostService {
     }
 
     public void deleteByPostId(Integer postId) {
-        if(postId == null) return;
+        if (postId == null) return;
         LambdaUpdateChainWrapper<CategoryPost> categoryPostLambdaUpdateChainWrapper = new LambdaUpdateChainWrapper<>(categoryPostMapper);
         categoryPostLambdaUpdateChainWrapper.eq(CategoryPost::getPostId, postId).remove();
     }
 
     public void deleteByCategoryId(Integer categoryId) {
-        if(categoryId == null) return;
+        if (categoryId == null) return;
         LambdaUpdateChainWrapper<CategoryPost> categoryPostLambdaUpdateChainWrapper = new LambdaUpdateChainWrapper<>(categoryPostMapper);
         categoryPostLambdaUpdateChainWrapper.eq(CategoryPost::getCategoryId, categoryId).remove();
     }

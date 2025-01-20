@@ -6,7 +6,7 @@ import moe.lyu.sapiblog.exception.*;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@RestControllerAdvice(assignableTypes= PostController.class)
+@RestControllerAdvice(assignableTypes = PostController.class)
 public class PostControllerHandler {
 
     @ExceptionHandler(CategoryAddFailedException.class)

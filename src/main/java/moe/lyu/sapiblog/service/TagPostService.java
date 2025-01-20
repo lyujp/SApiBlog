@@ -1,14 +1,17 @@
 package moe.lyu.sapiblog.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import moe.lyu.sapiblog.entity.*;
-import moe.lyu.sapiblog.exception.*;
-import moe.lyu.sapiblog.mapper.*;
-import moe.lyu.sapiblog.vo.TagPostVo;
+import moe.lyu.sapiblog.entity.Post;
+import moe.lyu.sapiblog.entity.Tag;
+import moe.lyu.sapiblog.entity.TagPost;
+import moe.lyu.sapiblog.exception.PostNotExistException;
+import moe.lyu.sapiblog.exception.TagAddFailedException;
+import moe.lyu.sapiblog.exception.TagNotFoundException;
+import moe.lyu.sapiblog.mapper.PostMapper;
+import moe.lyu.sapiblog.mapper.TagMapper;
+import moe.lyu.sapiblog.mapper.TagPostDtoMapper;
+import moe.lyu.sapiblog.mapper.TagPostMapper;
 import moe.lyu.sapiblog.vo.TagPostVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,10 +29,10 @@ public class TagPostService {
 
     @Autowired
     public TagPostService(TagPostDtoMapper tagPostDtoMapper,
-                               TagPostMapper tagPostMapper,
-                               PostMapper postMapper,
-                               TagMapper tagMapper,
-                               ITagPostService iTagPostService) {
+                          TagPostMapper tagPostMapper,
+                          PostMapper postMapper,
+                          TagMapper tagMapper,
+                          ITagPostService iTagPostService) {
         this.tagPostDtoMapper = tagPostDtoMapper;
         this.tagPostMapper = tagPostMapper;
         this.postMapper = postMapper;
@@ -51,7 +54,7 @@ public class TagPostService {
             TagNotFoundException {
         LambdaQueryChainWrapper<TagPost> tagPostLambdaQueryChainWrapper = new LambdaQueryChainWrapper<>(tagPostMapper);
         TagPost one = tagPostLambdaQueryChainWrapper.eq(TagPost::getPostId, postId).eq(TagPost::getTagId, tagId).one();
-        if(one != null) {
+        if (one != null) {
             return;
         }
 

@@ -3,7 +3,9 @@ package moe.lyu.sapiblog.controller;
 import moe.lyu.sapiblog.annotation.AuthCheck;
 import moe.lyu.sapiblog.dto.PostWithoutContentDto;
 import moe.lyu.sapiblog.dto.Resp;
-import moe.lyu.sapiblog.entity.*;
+import moe.lyu.sapiblog.entity.CategoryPost;
+import moe.lyu.sapiblog.entity.Post;
+import moe.lyu.sapiblog.entity.TagPost;
 import moe.lyu.sapiblog.exception.*;
 import moe.lyu.sapiblog.service.*;
 import moe.lyu.sapiblog.vo.CategoryPostVo;
@@ -55,9 +57,9 @@ public class PostController {
     }
 
     @GetMapping("/list")
-    public Resp list( @RequestParam(value = "page", required = false, defaultValue = "1") Integer currentPage,
-                      @RequestParam(value = "size", required = false, defaultValue = "10") Integer pageSize,
-                      @RequestParam(value = "desc", required = false, defaultValue = "true") Boolean desc) {
+    public Resp list(@RequestParam(value = "page", required = false, defaultValue = "1") Integer currentPage,
+                     @RequestParam(value = "size", required = false, defaultValue = "10") Integer pageSize,
+                     @RequestParam(value = "desc", required = false, defaultValue = "true") Boolean desc) {
         List<PostWithoutContentDto> list = postService.list(currentPage, pageSize, desc);
         return Resp.success(list);
     }
@@ -88,43 +90,21 @@ public class PostController {
 
     @PostMapping("/add/category/{post_id}/{category_id}")
     @AuthCheck
-    public Resp addCategory(@PathVariable Integer post_id,@PathVariable Integer category_id)
+    public Resp addCategory(@PathVariable Integer post_id, @PathVariable Integer category_id)
             throws CategoryAddFailedException,
             PostNotExistException,
             CategoryNotFoundException {
-        categoryPostService.add(post_id,category_id);
-        return Resp.success();
-    }
-
-    @PostMapping("/add/category_uniq_name/{post_id}/{uniq_name}")
-    @AuthCheck
-    public Resp addCategoryByUniqName(@PathVariable Integer post_id,@PathVariable String uniq_name)
-            throws CategoryAddFailedException,
-            PostNotExistException,
-            CategoryNotFoundException{
-        Category category = categoryService.getByUniqName(uniq_name);
-        categoryPostService.add(post_id,category.getId());
+        categoryPostService.add(post_id, category_id);
         return Resp.success();
     }
 
     @PostMapping("/add/tag/{post_id}/{tag_id}")
     @AuthCheck
-    public Resp addTag(@PathVariable Integer post_id,@PathVariable Integer tag_id)
+    public Resp addTag(@PathVariable Integer post_id, @PathVariable Integer tag_id)
             throws TagAddFailedException,
             PostNotExistException,
             TagNotFoundException {
-        tagPostService.add(post_id,tag_id);
-        return Resp.success();
-    }
-
-    @PostMapping("/add/tag_uniq_name/{post_id}/{uniq_name}")
-    @AuthCheck
-    public Resp addTagByUniqName(@PathVariable Integer post_id,@PathVariable String uniq_name)
-            throws TagAddFailedException,
-            PostNotExistException,
-            TagNotFoundException {
-        Tag tag = tagService.getByUniqName(uniq_name);
-        tagPostService.add(post_id,tag.getId());
+        tagPostService.add(post_id, tag_id);
         return Resp.success();
     }
 }
