@@ -9,9 +9,10 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 @Data
-@TableName("user")
+@TableName("\"user\"")
 public class User {
     @TableId(type = IdType.AUTO)
     private Integer id;
@@ -36,41 +37,14 @@ public class User {
     }
 
     public void setRole(String role) {
-        if (role == null || role.trim().equals("")) {
+        if (role == null || role.trim().isEmpty()) {
             role = "USER";
         }
         this.role = role;
     }
 
-    public String getPassword() {
-        return "";
-    }
-
-    public void setPassword(String password) throws NoSuchAlgorithmException {
-        this.salt = UUID.randomUUID().toString();
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        digest.update(password.getBytes(StandardCharsets.UTF_8));
-        digest.update(this.salt.getBytes(StandardCharsets.UTF_8));
-        this.password = Arrays.toString(digest.digest());
-    }
-
-    public void setPassword(String password, String salt) throws NoSuchAlgorithmException {
-        this.salt = salt;
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        digest.update(password.getBytes(StandardCharsets.UTF_8));
-        digest.update(this.salt.getBytes(StandardCharsets.UTF_8));
-        this.password = Arrays.toString(digest.digest());
-    }
-
-    public void setSalt(String salt) {
-    }
-
     public void setLastLoginTime() {
         this.lastLoginTime = new Date().toInstant().getEpochSecond();
-    }
-
-    public String getTotp() {
-        return "";
     }
 
     public void setTotp(String totp) {

@@ -1,121 +1,114 @@
-create table public.category
+create table if not exists category
 (
-    id          serial
+    id serial
         constraint category_pk
             primary key,
-    name        varchar default 'UnTittled'::character varying not null
+    name varchar default 'UnTittled'::character varying not null
         constraint category_pk_3
             unique,
-    parent_id   integer default 0                              not null,
-    create_time bigint,
-    update_time bigint
+    parent_id integer default 0 not null,
+    create_time bigint default 0 not null,
+    update_time bigint default 0 not null
 );
 
-comment on table public.category is '分类';
+comment on table category is '分类';
 
-alter table public.category
-    owner to postgres;
+alter table category owner to postgres;
 
-create table public.category_post
+create table if not exists category_post
 (
-    id          serial
+    id serial
         constraint category_post_pk
             primary key,
-    post_id     integer not null,
-    category_id integer,
-    create_time bigint,
-    update_time bigint,
+    post_id integer not null,
+    category_id integer default 0 not null,
+    create_time bigint default 0 not null,
+    update_time bigint default 0 not null,
     constraint category_post_pk_2
         unique (post_id, category_id)
 );
 
-alter table public.category_post
-    owner to postgres;
+alter table category_post owner to postgres;
 
-create table public.setting
+create table if not exists setting
 (
-    k           varchar               not null
+    k varchar not null
         constraint setting_pk
             primary key,
-    v           varchar,
+    v varchar default ''::character varying not null,
     option_type boolean default false not null,
-    create_time bigint,
-    update_time bigint
+    create_time bigint default 0 not null,
+    update_time bigint default 0 not null
 );
 
-alter table public.setting
-    owner to postgres;
+alter table setting owner to postgres;
 
-create table public.post
+create table if not exists post
 (
-    id          serial
+    id serial
         constraint post_pk
             primary key,
-    author_id   integer default 0 not null,
-    title       varchar,
-    content     text,
-    status      boolean,
-    cover       varchar,
-    post_type   boolean,
-    create_time bigint,
-    update_time bigint,
-    summary     varchar
+    author_id integer default 0 not null,
+    title varchar default ''::character varying not null,
+    content text default ''::text not null,
+    status boolean default false not null,
+    cover varchar default ''::character varying not null,
+    post_type boolean default true not null,
+    create_time bigint default 0 not null,
+    update_time bigint default 0 not null,
+    summary varchar default ''::character varying not null
 );
 
-alter table public.post
-    owner to postgres;
+alter table post owner to postgres;
 
-create table public.tag
+create table if not exists tag
 (
-    id          serial
+    id serial
         constraint tag_pk
             primary key,
-    name        varchar
+    name varchar default ''::character varying not null
         constraint tag_pk_3
             unique,
-    create_time bigint,
-    update_time bigint
+    create_time bigint default 0 not null,
+    update_time bigint default 0 not null
 );
 
-alter table public.tag
-    owner to postgres;
+alter table tag owner to postgres;
 
-create table public.tag_post
+create table if not exists tag_post
 (
-    id          serial
+    id serial
         constraint tag_post_pk
             primary key,
-    post_id     integer,
-    tag_id      integer,
-    create_time bigint,
-    update_time bigint
+    post_id integer default 0 not null,
+    tag_id integer default 0 not null,
+    create_time bigint default 0 not null,
+    update_time bigint default 0 not null
 );
 
-alter table public.tag_post
-    owner to postgres;
+alter table tag_post owner to postgres;
 
-create table public."user"
+create table if not exists "user"
 (
-    id              serial
+    id serial
         constraint user_pk
             primary key,
-    username        varchar not null
+    username varchar default ''::character varying not null
         constraint user_pk_2
             unique,
-    password        varchar,
-    nickname        varchar not null,
-    avatar          varchar,
-    email           varchar,
-    phone           varchar,
-    role            varchar default 'USER'::character varying,
-    jwt             varchar,
-    totp            varchar,
-    salt            varchar not null,
-    create_time     bigint,
-    update_time     bigint,
-    last_login_time bigint
+    password varchar default ''::character varying not null,
+    nickname varchar default 'User'::character varying not null,
+    avatar varchar default ''::character varying not null,
+    email varchar default ''::character varying not null,
+    phone varchar default ''::character varying not null,
+    role varchar default 'USER'::character varying not null,
+    jwt varchar default ''::character varying not null,
+    totp varchar default ''::character varying not null,
+    salt varchar default ''::character varying not null,
+    create_time bigint default 0 not null,
+    update_time bigint default 0 not null,
+    last_login_time bigint default 0 not null
 );
 
-alter table public."user"
-    owner to postgres;
+alter table "user" owner to postgres;
 

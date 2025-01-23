@@ -4,41 +4,42 @@ import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapp
 import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import moe.lyu.sapiblog.dto.UserWithoutSensitiveDto;
+import moe.lyu.sapiblog.dto.JwtDto;
 import moe.lyu.sapiblog.entity.User;
 import moe.lyu.sapiblog.exception.UserJwtVerifyFailedException;
 import moe.lyu.sapiblog.exception.UserLoginFailed;
 import moe.lyu.sapiblog.exception.UserRegisterFailedException;
 import moe.lyu.sapiblog.exception.UserUpdateFailedException;
 import moe.lyu.sapiblog.mapper.UserMapper;
-import moe.lyu.sapiblog.utils.Jwt;
+import moe.lyu.sapiblog.utils.JwtUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.UUID;
 
 @Service
 public class UserService {
 
     UserMapper userMapper;
+    JwtUtils jwtUtils;
 
     @Autowired
-    public UserService(UserMapper userMapper) {
+    public UserService(UserMapper userMapper, JwtUtils jwtUtils) {
         this.userMapper = userMapper;
+        this.jwtUtils = jwtUtils;
     }
 
-    private static UserWithoutSensitiveDto userToUserWithoutSensitiveDto(User user) {
-        UserWithoutSensitiveDto userWithoutSensitiveDto = new UserWithoutSensitiveDto();
-        BeanUtils.copyProperties(user, userWithoutSensitiveDto);
-        return userWithoutSensitiveDto;
-    }
-
-    public UserWithoutSensitiveDto login(String username, String password, String totp) throws NoSuchAlgorithmException, UserLoginFailed {
+    public User login(String username, String password, String totp) throws NoSuchAlgorithmException, UserLoginFailed {
         if (username == null || password == null || username.isEmpty() || password.isEmpty()) {
             throw new UserLoginFailed("Username or password is empty");
         }
-
+        username = username.toLowerCase().trim();
         LambdaQueryChainWrapper<User> userLambdaQueryChainWrapper = new LambdaQueryChainWrapper<>(userMapper);
         User userDb = userLambdaQueryChainWrapper.eq(User::getUsername, username).one();
         if (userDb == null) {
@@ -46,68 +47,137 @@ public class UserService {
         }
 
         String pwd = userDb.getPassword();
-        userDb.setPassword(password, userDb.getSalt());
-        if (!userDb.getPassword().equals(pwd)) {
+        String pwdGenerate = generatePassword(password, userDb.getSalt());
+        if (!pwdGenerate.equals(pwd)) {
             throw new UserLoginFailed("Username or password is invalid");
         }
 
-        if (!userDb.getTotp().isEmpty() && !userDb.getTotp().equals(totp)) {
-            throw new UserLoginFailed("Totp is invalid");
-        }
+        userDb.setLastLoginTime();
+        userDb.setSalt("");
+        userDb.setTotp("");
+        userDb.setPassword("");
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        String payload;
+        JwtDto jwtDto = new JwtDto();
+        jwtDto.setUsername(userDb.getUsername());
+        jwtDto.setRole(userDb.getRole());
+        jwtDto.setUserId(userDb.getId());
+
         try {
-            payload = objectMapper.writeValueAsString(userDb);
+            String payload = jwtUtils.generateJwt(jwtDto);
+            userDb.setJwt(payload);
         } catch (Exception e) {
             throw new UserLoginFailed("Username or password is invalid");
         }
-        userDb.setLastLoginTime();
+
+
+
         LambdaUpdateChainWrapper<User> userLambdaUpdateChainWrapper = new LambdaUpdateChainWrapper<>(userMapper);
         userLambdaUpdateChainWrapper
                 .set(User::getId, userDb.getId())
-                .set(User::getJwt, payload)
+                .set(User::getJwt, userDb.getJwt())
                 .set(User::getLastLoginTime, userDb.getLastLoginTime())
                 .eq(User::getId, userDb.getId())
                 .update();
-        return userToUserWithoutSensitiveDto(userDb);
+        return userDb;
     }
 
-    public void register(User user) throws UserRegisterFailedException {
-        LambdaUpdateChainWrapper<User> userLambdaUpdateChainWrapper = new LambdaUpdateChainWrapper<>(userMapper);
-        boolean update = userLambdaUpdateChainWrapper.setEntity(user).update();
-        if (!update) {
+    public void register(User user) throws UserRegisterFailedException, NoSuchAlgorithmException {
+        if(user == null) {
+            throw new UserRegisterFailedException("Username or password is empty");
+        }
+        if(user.getId() != null){
             throw new UserRegisterFailedException("Register failed");
         }
+        if(user.getUsername() == null || user.getPassword() == null || user.getUsername().isEmpty() || user.getPassword().isEmpty()){
+            throw new UserRegisterFailedException("Username or password is empty");
+        }
+        if(user.getEmail() == null || user.getEmail().isEmpty()){
+            throw new UserRegisterFailedException("Email is empty");
+        }
+        if(user.getNickname() == null || user.getNickname().isEmpty()){
+            throw new UserRegisterFailedException("Nickname is empty");
+        }
 
+        if(!checkUsername(user.getUsername())){
+            throw new UserRegisterFailedException("Username is already in use");
+        }
+
+        if(!checkEmail(user.getEmail())){
+            throw new UserRegisterFailedException("Email is already in use");
+        }
+        String salt = UUID.randomUUID().toString();
+        user.setSalt(salt);
+        user.setPassword(generatePassword(user.getPassword(), salt));
+        user.setLastLoginTime();
+        int insert = userMapper.insert(user);
+        if (insert == 0) {
+            throw new UserRegisterFailedException("Register failed");
+        }
     }
 
-    public void update(User user) throws UserUpdateFailedException {
+    public Boolean checkUsername(String username) {
+        LambdaQueryChainWrapper<User> userLambdaQueryChainWrapper = new LambdaQueryChainWrapper<>(userMapper);
+        User userDb = userLambdaQueryChainWrapper.eq(User::getUsername, username).one();
+        return userDb == null;
+    }
+
+    public Boolean checkEmail(String email) {
+        LambdaQueryChainWrapper<User> userLambdaQueryChainWrapper = new LambdaQueryChainWrapper<>(userMapper);
+        User userDb = userLambdaQueryChainWrapper.eq(User::getEmail, email).one();
+        return userDb == null;
+    }
+
+    public Boolean checkPhoneNumber(String phoneNumber) {
+        LambdaQueryChainWrapper<User> userLambdaQueryChainWrapper = new LambdaQueryChainWrapper<>(userMapper);
+        User userDb = userLambdaQueryChainWrapper.eq(User::getPhone, phoneNumber).one();
+        return userDb == null;
+    }
+
+    public void update(User user, String jwt) throws UserUpdateFailedException, NoSuchAlgorithmException {
+        JwtDto userInToken = jwtDbVerify(jwt);
+        if(userInToken == null || !Objects.equals(userInToken.getUserId(), user.getId())) {
+            throw new UserUpdateFailedException("You can only update your own user");
+        }
+        if(user.getPassword() != null && !user.getPassword().isEmpty()){
+            String salt = UUID.randomUUID().toString();
+            user.setSalt(salt);
+            user.setPassword(generatePassword(user.getPassword(),salt));
+        }
         if (userMapper.updateById(user) == 0) {
             throw new UserUpdateFailedException("");
         }
     }
 
-    public UserWithoutSensitiveDto jwtDbVerify(String token) throws UserJwtVerifyFailedException {
+    public JwtDto jwtDbVerify(String token) throws UserJwtVerifyFailedException {
 
-        UserWithoutSensitiveDto userWithoutSensitiveDto = jwtDbVerify(token);
+        if(token == null || token.isEmpty()){
+            throw new UserJwtVerifyFailedException("Token is empty");
+        }
+
+        JwtDto jwtDto = jwtUtils.decodeJwt(token);
+
+        if(jwtDto == null){
+            throw new UserJwtVerifyFailedException("Jwt verify failed");
+        }
 
         LambdaQueryChainWrapper<User> userLambdaQueryChainWrapper = new LambdaQueryChainWrapper<>(userMapper);
-        User user = userLambdaQueryChainWrapper.eq(User::getJwt, token).eq(User::getId, userWithoutSensitiveDto.getId()).one();
+        User user = userLambdaQueryChainWrapper.eq(User::getJwt, token).eq(User::getId, jwtDto.getUserId()).one();
         if (user == null) {
             throw new UserJwtVerifyFailedException("Jwt not exist");
         }
 
-        return userToUserWithoutSensitiveDto(user);
+        return jwtDto;
     }
 
-    public UserWithoutSensitiveDto jwtVerify(String token) throws UserJwtVerifyFailedException {
-        String payload = Jwt.decodeJwt(token);
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            return objectMapper.readValue(payload, UserWithoutSensitiveDto.class);
-        } catch (JsonProcessingException e) {
-            throw new UserJwtVerifyFailedException("Jwt decode failed");
-        }
+    public JwtDto jwtVerify(String token) throws UserJwtVerifyFailedException {
+        return jwtUtils.decodeJwt(token);
+    }
+
+
+    private String generatePassword(String password, String salt) throws NoSuchAlgorithmException {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        digest.update(password.getBytes(StandardCharsets.UTF_8));
+        digest.update(salt.getBytes(StandardCharsets.UTF_8));
+        return Arrays.toString(digest.digest());
     }
 }

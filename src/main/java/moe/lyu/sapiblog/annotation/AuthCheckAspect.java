@@ -1,7 +1,8 @@
 package moe.lyu.sapiblog.annotation;
 
 import jakarta.servlet.http.HttpServletRequest;
-import moe.lyu.sapiblog.dto.UserWithoutSensitiveDto;
+import moe.lyu.sapiblog.dto.JwtDto;
+import moe.lyu.sapiblog.entity.User;
 import moe.lyu.sapiblog.exception.UserJwtVerifyFailedException;
 import moe.lyu.sapiblog.service.UserService;
 import org.aspectj.lang.annotation.Aspect;
@@ -31,13 +32,13 @@ public class AuthCheckAspect {
         }
         HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
         String jwt = request.getHeader("Authorization");
-        UserWithoutSensitiveDto userWithoutSensitiveDto;
+        JwtDto user = null;
         if (authCheck.jwtDbCheck()) {
-            userWithoutSensitiveDto = userService.jwtDbVerify(jwt);
+            user = userService.jwtDbVerify(jwt);
         } else {
-            userWithoutSensitiveDto = userService.jwtVerify(jwt);
+            user = userService.jwtVerify(jwt);
         }
-        if (userWithoutSensitiveDto == null) {
+        if (user == null) {
             throw new UserJwtVerifyFailedException("Jwt is invalid");
         }
     }
