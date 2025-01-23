@@ -31,7 +31,7 @@ class TagServiceTest {
     @AfterEach
     void tearDown() {
         LambdaUpdateChainWrapper<Tag> tagLambdaUpdateChainWrapper = new LambdaUpdateChainWrapper<>(tagMapper);
-        tagLambdaUpdateChainWrapper.likeRight(Tag::getName,"__Test").remove();
+        tagLambdaUpdateChainWrapper.likeRight(Tag::getName, "__Test").remove();
     }
 
     @Test

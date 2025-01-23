@@ -2,8 +2,6 @@ package moe.lyu.sapiblog.service;
 
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import moe.lyu.sapiblog.dto.JwtDto;
 import moe.lyu.sapiblog.entity.User;
 import moe.lyu.sapiblog.exception.UserJwtVerifyFailedException;
@@ -12,7 +10,6 @@ import moe.lyu.sapiblog.exception.UserRegisterFailedException;
 import moe.lyu.sapiblog.exception.UserUpdateFailedException;
 import moe.lyu.sapiblog.mapper.UserMapper;
 import moe.lyu.sapiblog.utils.JwtUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -70,7 +67,6 @@ public class UserService {
         }
 
 
-
         LambdaUpdateChainWrapper<User> userLambdaUpdateChainWrapper = new LambdaUpdateChainWrapper<>(userMapper);
         userLambdaUpdateChainWrapper
                 .set(User::getId, userDb.getId())
@@ -82,27 +78,27 @@ public class UserService {
     }
 
     public void register(User user) throws UserRegisterFailedException, NoSuchAlgorithmException {
-        if(user == null) {
+        if (user == null) {
             throw new UserRegisterFailedException("Username or password is empty");
         }
-        if(user.getId() != null){
+        if (user.getId() != null) {
             throw new UserRegisterFailedException("Register failed");
         }
-        if(user.getUsername() == null || user.getPassword() == null || user.getUsername().isEmpty() || user.getPassword().isEmpty()){
+        if (user.getUsername() == null || user.getPassword() == null || user.getUsername().isEmpty() || user.getPassword().isEmpty()) {
             throw new UserRegisterFailedException("Username or password is empty");
         }
-        if(user.getEmail() == null || user.getEmail().isEmpty()){
+        if (user.getEmail() == null || user.getEmail().isEmpty()) {
             throw new UserRegisterFailedException("Email is empty");
         }
-        if(user.getNickname() == null || user.getNickname().isEmpty()){
+        if (user.getNickname() == null || user.getNickname().isEmpty()) {
             throw new UserRegisterFailedException("Nickname is empty");
         }
 
-        if(!checkUsername(user.getUsername())){
+        if (!checkUsername(user.getUsername())) {
             throw new UserRegisterFailedException("Username is already in use");
         }
 
-        if(!checkEmail(user.getEmail())){
+        if (!checkEmail(user.getEmail())) {
             throw new UserRegisterFailedException("Email is already in use");
         }
         String salt = UUID.randomUUID().toString();
@@ -135,13 +131,13 @@ public class UserService {
 
     public void update(User user, String jwt) throws UserUpdateFailedException, NoSuchAlgorithmException {
         JwtDto userInToken = jwtDbVerify(jwt);
-        if(userInToken == null || !Objects.equals(userInToken.getUserId(), user.getId())) {
+        if (userInToken == null || !Objects.equals(userInToken.getUserId(), user.getId())) {
             throw new UserUpdateFailedException("You can only update your own user");
         }
-        if(user.getPassword() != null && !user.getPassword().isEmpty()){
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
             String salt = UUID.randomUUID().toString();
             user.setSalt(salt);
-            user.setPassword(generatePassword(user.getPassword(),salt));
+            user.setPassword(generatePassword(user.getPassword(), salt));
         }
         if (userMapper.updateById(user) == 0) {
             throw new UserUpdateFailedException("");
@@ -150,13 +146,13 @@ public class UserService {
 
     public JwtDto jwtDbVerify(String token) throws UserJwtVerifyFailedException {
 
-        if(token == null || token.isEmpty()){
+        if (token == null || token.isEmpty()) {
             throw new UserJwtVerifyFailedException("Token is empty");
         }
 
         JwtDto jwtDto = jwtUtils.decodeJwt(token);
 
-        if(jwtDto == null){
+        if (jwtDto == null) {
             throw new UserJwtVerifyFailedException("Jwt verify failed");
         }
 

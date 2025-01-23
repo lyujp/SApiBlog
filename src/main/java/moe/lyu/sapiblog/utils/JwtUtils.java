@@ -1,9 +1,7 @@
 package moe.lyu.sapiblog.utils;
 
 import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.Claim;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import moe.lyu.sapiblog.dto.JwtDto;
@@ -12,7 +10,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.Base64;
 import java.util.Date;
-import java.util.Map;
 
 @Component
 public class JwtUtils {

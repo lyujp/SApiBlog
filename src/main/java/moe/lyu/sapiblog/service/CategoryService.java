@@ -12,7 +12,6 @@ import moe.lyu.sapiblog.exception.CategoryNotFoundException;
 import moe.lyu.sapiblog.exception.CategoryUnknownException;
 import moe.lyu.sapiblog.mapper.CategoryMapper;
 import moe.lyu.sapiblog.mapper.CategoryPostMapper;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

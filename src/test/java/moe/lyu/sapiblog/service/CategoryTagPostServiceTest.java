@@ -1,26 +1,24 @@
 package moe.lyu.sapiblog.service;
 
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import moe.lyu.sapiblog.entity.*;
-import moe.lyu.sapiblog.exception.*;
+import moe.lyu.sapiblog.exception.CategoryNotFoundException;
+import moe.lyu.sapiblog.exception.PostNotExistException;
+import moe.lyu.sapiblog.exception.TagNotFoundException;
 import moe.lyu.sapiblog.mapper.*;
 import moe.lyu.sapiblog.vo.CategoryPostVo;
 import moe.lyu.sapiblog.vo.TagPostVo;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.Ordered;
 
 import java.util.List;
-import java.util.stream.Collectors;
+
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
 @SpringBootTest
 public class CategoryTagPostServiceTest {
@@ -81,32 +79,32 @@ public class CategoryTagPostServiceTest {
         List<Integer> postIds = postLambdaQueryChainWrapper.likeRight(Post::getTitle, "__Test").list().stream().map(Post::getId).toList();
 
         LambdaUpdateChainWrapper<Category> categoryLambdaUpdateChainWrapper = new LambdaUpdateChainWrapper<>(categoryMapper);
-        categoryLambdaUpdateChainWrapper.likeRight(Category::getName,"__Test").remove();
+        categoryLambdaUpdateChainWrapper.likeRight(Category::getName, "__Test").remove();
 
         LambdaUpdateChainWrapper<Tag> tagLambdaUpdateChainWrapper = new LambdaUpdateChainWrapper<>(tagMapper);
-        tagLambdaUpdateChainWrapper.likeRight(Tag::getName,"__Test").remove();
+        tagLambdaUpdateChainWrapper.likeRight(Tag::getName, "__Test").remove();
 
         LambdaUpdateChainWrapper<Post> postLambdaUpdateChainWrapper = new LambdaUpdateChainWrapper<>(postMapper);
-        postLambdaUpdateChainWrapper.likeRight(Post::getTitle,"__Test").remove();
+        postLambdaUpdateChainWrapper.likeRight(Post::getTitle, "__Test").remove();
 
         LambdaUpdateChainWrapper<TagPost> tagPostLambdaUpdateChainWrapper = new LambdaUpdateChainWrapper<>(tagPostMapper);
-        tagPostLambdaUpdateChainWrapper.in(TagPost::getTagId,tagIds).remove();
+        tagPostLambdaUpdateChainWrapper.in(TagPost::getTagId, tagIds).remove();
         LambdaUpdateChainWrapper<TagPost> tagPostLambdaUpdateChainWrapper2 = new LambdaUpdateChainWrapper<>(tagPostMapper);
-        tagPostLambdaUpdateChainWrapper2.in(TagPost::getPostId,postIds).remove();
+        tagPostLambdaUpdateChainWrapper2.in(TagPost::getPostId, postIds).remove();
 
         LambdaUpdateChainWrapper<CategoryPost> categoryPostLambdaUpdateChainWrapper = new LambdaUpdateChainWrapper<>(categoryPostMapper);
-        categoryPostLambdaUpdateChainWrapper.in(CategoryPost::getCategoryId,categoryIds).remove();
+        categoryPostLambdaUpdateChainWrapper.in(CategoryPost::getCategoryId, categoryIds).remove();
         LambdaUpdateChainWrapper<CategoryPost> categoryPostLambdaUpdateChainWrapper2 = new LambdaUpdateChainWrapper<>(categoryPostMapper);
-        categoryPostLambdaUpdateChainWrapper2.in(CategoryPost::getPostId,postIds).remove();
+        categoryPostLambdaUpdateChainWrapper2.in(CategoryPost::getPostId, postIds).remove();
     }
 
     @Test
     void add() throws JsonProcessingException {
-        assertThrowsExactly(PostNotExistException.class,()->categoryPostService.add(-1, this.categoryAdd.getId()));
-        assertThrowsExactly(CategoryNotFoundException.class,()->categoryPostService.add(this.postAdd.getId(),-1));
+        assertThrowsExactly(PostNotExistException.class, () -> categoryPostService.add(-1, this.categoryAdd.getId()));
+        assertThrowsExactly(CategoryNotFoundException.class, () -> categoryPostService.add(this.postAdd.getId(), -1));
 
-        assertThrowsExactly(PostNotExistException.class,()->tagPostService.add(-1, this.tagAdd.getId()));
-        assertThrowsExactly(TagNotFoundException.class,()->tagPostService.add(this.postAdd.getId(),-1));
+        assertThrowsExactly(PostNotExistException.class, () -> tagPostService.add(-1, this.tagAdd.getId()));
+        assertThrowsExactly(TagNotFoundException.class, () -> tagPostService.add(this.postAdd.getId(), -1));
     }
 
     @Test

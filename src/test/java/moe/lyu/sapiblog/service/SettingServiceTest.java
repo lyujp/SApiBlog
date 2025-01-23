@@ -1,7 +1,6 @@
 package moe.lyu.sapiblog.service;
 
 import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
-import moe.lyu.sapiblog.entity.Post;
 import moe.lyu.sapiblog.entity.Setting;
 import moe.lyu.sapiblog.exception.SettingNotExistException;
 import moe.lyu.sapiblog.mapper.SettingMapper;
@@ -31,7 +30,7 @@ class SettingServiceTest {
     @AfterEach
     void tearDown() {
         LambdaUpdateChainWrapper<Setting> tagLambdaUpdateChainWrapper = new LambdaUpdateChainWrapper<>(settingMapper);
-        tagLambdaUpdateChainWrapper.likeRight(Setting::getK,"__Test").remove();
+        tagLambdaUpdateChainWrapper.likeRight(Setting::getK, "__Test").remove();
     }
 
     @Test
@@ -70,7 +69,7 @@ class SettingServiceTest {
         settingService.update(List.of(setting));
 
         assertEquals("get value", settingService.getValue("__Test Get value"));
-        assertThrowsExactly(SettingNotExistException.class, ()->settingService.getValue("__Test Get value null"));
+        assertThrowsExactly(SettingNotExistException.class, () -> settingService.getValue("__Test Get value null"));
     }
 
     @Test
@@ -81,6 +80,6 @@ class SettingServiceTest {
         settingService.update(List.of(setting));
 
         assertEquals("get", settingService.getValue("__Test Get"));
-        assertThrowsExactly(SettingNotExistException.class, ()->settingService.getValue("__Test Get null"));
+        assertThrowsExactly(SettingNotExistException.class, () -> settingService.getValue("__Test Get null"));
     }
 }

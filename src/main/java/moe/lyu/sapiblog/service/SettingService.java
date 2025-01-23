@@ -37,14 +37,14 @@ public class SettingService {
         iSettingService.removeBatchByIds(settingsDelete);
     }
 
-    public String getValue(String k) throws SettingNotExistException{
+    public String getValue(String k) throws SettingNotExistException {
         return get(k).getV();
     }
 
-    public Setting get(String k) throws SettingNotExistException{
+    public Setting get(String k) throws SettingNotExistException {
         LambdaQueryChainWrapper<Setting> settingLambdaQueryChainWrapper = new LambdaQueryChainWrapper<>(settingMapper);
         Setting one = settingLambdaQueryChainWrapper.eq(Setting::getK, k).one();
-        if(one == null){
+        if (one == null) {
             throw new SettingNotExistException(k + " is not exist");
         }
         return one;

@@ -31,7 +31,7 @@ class CategoryServiceTest {
     @AfterEach
     void tearDown() {
         LambdaUpdateChainWrapper<Category> categoryLambdaUpdateChainWrapper = new LambdaUpdateChainWrapper<>(categoryMapper);
-        categoryLambdaUpdateChainWrapper.likeRight(Category::getName,"__Test").remove();
+        categoryLambdaUpdateChainWrapper.likeRight(Category::getName, "__Test").remove();
     }
 
     @Test

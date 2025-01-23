@@ -34,7 +34,7 @@ class UserServiceTest {
     @AfterEach
     void tearDown() {
         LambdaUpdateChainWrapper<User> categoryLambdaUpdateChainWrapper = new LambdaUpdateChainWrapper<>(userMapper);
-        categoryLambdaUpdateChainWrapper.likeRight(User::getUsername,"__test").remove();
+        categoryLambdaUpdateChainWrapper.likeRight(User::getUsername, "__test").remove();
     }
 
     @Test
@@ -49,10 +49,10 @@ class UserServiceTest {
         User login = userService.login("__testLogin", "123456", null);
         assertNotNull(login);
 
-        assertThrowsExactly(UserLoginFailed.class,()->userService.login("__testLogin2", "123456", null));
-        assertThrowsExactly(UserLoginFailed.class,()->userService.login("__testLogin", "1234567", null));
-        assertThrowsExactly(UserLoginFailed.class,()->userService.login(null, "1234567", null));
-        assertThrowsExactly(UserLoginFailed.class,()->userService.login("__testLogin", null, null));
+        assertThrowsExactly(UserLoginFailed.class, () -> userService.login("__testLogin2", "123456", null));
+        assertThrowsExactly(UserLoginFailed.class, () -> userService.login("__testLogin", "1234567", null));
+        assertThrowsExactly(UserLoginFailed.class, () -> userService.login(null, "1234567", null));
+        assertThrowsExactly(UserLoginFailed.class, () -> userService.login("__testLogin", null, null));
 
         assertEquals("__testlogin", login.getUsername());
     }
@@ -60,31 +60,31 @@ class UserServiceTest {
     @Test
     void register() throws NoSuchAlgorithmException {
         User userNull = null;
-        assertThrowsExactly(UserRegisterFailedException.class,()->userService.register(userNull));
+        assertThrowsExactly(UserRegisterFailedException.class, () -> userService.register(userNull));
 
         User userUsernameNull = new User();
         userUsernameNull.setPassword("123456");
         userUsernameNull.setNickname("Test Register");
         userUsernameNull.setEmail("test@test.com");
-        assertThrowsExactly(UserRegisterFailedException.class,()->userService.register(userUsernameNull));
+        assertThrowsExactly(UserRegisterFailedException.class, () -> userService.register(userUsernameNull));
 
         User userPasswordNull = new User();
         userPasswordNull.setUsername("__testRegisterPasswordNull");
         userPasswordNull.setNickname("Test Register");
         userPasswordNull.setEmail("test@test.com");
-        assertThrowsExactly(UserRegisterFailedException.class,()->userService.register(userPasswordNull));
+        assertThrowsExactly(UserRegisterFailedException.class, () -> userService.register(userPasswordNull));
 
         User userNickNameNull = new User();
         userNickNameNull.setUsername("__testRegisterNickNameNull");
         userNickNameNull.setPassword("123456");
         userNickNameNull.setEmail("test@test.com");
-        assertThrowsExactly(UserRegisterFailedException.class,()->userService.register(userNickNameNull));
+        assertThrowsExactly(UserRegisterFailedException.class, () -> userService.register(userNickNameNull));
 
         User userEmailNull = new User();
         userEmailNull.setUsername("__testRegisterEmailNull");
         userEmailNull.setPassword("123456");
         userEmailNull.setNickname("Test Register");
-        assertThrowsExactly(UserRegisterFailedException.class,()->userService.register(userEmailNull));
+        assertThrowsExactly(UserRegisterFailedException.class, () -> userService.register(userEmailNull));
 
         User user = new User();
         user.setUsername("__testRegister");
@@ -94,7 +94,7 @@ class UserServiceTest {
         user.setPhone("123456");
         userService.register(user);
 
-        assertThrowsExactly(UserRegisterFailedException.class,()->userService.register(user));
+        assertThrowsExactly(UserRegisterFailedException.class, () -> userService.register(user));
 
         LambdaQueryChainWrapper<User> lambdaQueryChainWrapper = new LambdaQueryChainWrapper<>(userMapper);
         User one = lambdaQueryChainWrapper.eq(User::getUsername, user.getUsername()).one();
@@ -142,7 +142,7 @@ class UserServiceTest {
         assertEquals(userDb.getRole(), userUpdated.getRole());
 
         userDb.setId(-1);
-        assertThrowsExactly(UserUpdateFailedException.class,()-> userService.update(userDb, userDb.getJwt()));
+        assertThrowsExactly(UserUpdateFailedException.class, () -> userService.update(userDb, userDb.getJwt()));
     }
 
     @Test
@@ -158,7 +158,7 @@ class UserServiceTest {
         LambdaUpdateChainWrapper<User> lambdaUpdateChainWrapper = new LambdaUpdateChainWrapper<>(userMapper);
         lambdaUpdateChainWrapper.eq(User::getId, login.getId()).set(User::getJwt, "").update();
 
-        assertThrowsExactly(UserJwtVerifyFailedException.class,()->userService.jwtDbVerify(login.getJwt()));
+        assertThrowsExactly(UserJwtVerifyFailedException.class, () -> userService.jwtDbVerify(login.getJwt()));
     }
 
     @Test

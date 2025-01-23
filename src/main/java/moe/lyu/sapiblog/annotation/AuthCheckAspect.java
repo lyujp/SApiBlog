@@ -2,7 +2,6 @@ package moe.lyu.sapiblog.annotation;
 
 import jakarta.servlet.http.HttpServletRequest;
 import moe.lyu.sapiblog.dto.JwtDto;
-import moe.lyu.sapiblog.entity.User;
 import moe.lyu.sapiblog.exception.UserJwtVerifyFailedException;
 import moe.lyu.sapiblog.service.UserService;
 import org.aspectj.lang.annotation.Aspect;

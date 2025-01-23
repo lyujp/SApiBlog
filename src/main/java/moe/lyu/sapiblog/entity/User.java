@@ -3,13 +3,7 @@ package moe.lyu.sapiblog.entity;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.UUID;
-import java.util.stream.Stream;
 
 @Data
 @TableName("\"user\"")

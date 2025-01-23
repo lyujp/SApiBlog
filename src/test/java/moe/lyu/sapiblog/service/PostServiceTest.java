@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapp
 import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
 import moe.lyu.sapiblog.dto.PostWithoutContentDto;
 import moe.lyu.sapiblog.entity.Post;
-import moe.lyu.sapiblog.entity.Tag;
 import moe.lyu.sapiblog.exception.PostNotExistException;
 import moe.lyu.sapiblog.exception.PostSaveFailedException;
 import moe.lyu.sapiblog.mapper.PostMapper;
@@ -35,16 +34,16 @@ class PostServiceTest {
     @AfterEach
     void tearDown() {
         LambdaUpdateChainWrapper<Post> tagLambdaUpdateChainWrapper = new LambdaUpdateChainWrapper<>(postMapper);
-        tagLambdaUpdateChainWrapper.likeRight(Post::getTitle,"__Test").remove();
+        tagLambdaUpdateChainWrapper.likeRight(Post::getTitle, "__Test").remove();
     }
 
     @Test
     void update() {
         Post postNull = null;
-        assertThrowsExactly(PostNotExistException.class, ()->postService.update(postNull));
+        assertThrowsExactly(PostNotExistException.class, () -> postService.update(postNull));
         Post postInvalidId = new Post();
         postInvalidId.setId(0);
-        assertThrowsExactly(PostSaveFailedException.class, ()->postService.update(postInvalidId));
+        assertThrowsExactly(PostSaveFailedException.class, () -> postService.update(postInvalidId));
         Post post = new Post();
         post.setPostType(false);
         post.setContent("test");
@@ -54,11 +53,11 @@ class PostServiceTest {
 
         LambdaQueryChainWrapper<Post> postLambdaQueryChainWrapper = new LambdaQueryChainWrapper<>(postMapper);
         Post postTestUpdateDb = postLambdaQueryChainWrapper.likeRight(Post::getTitle, "__Test Update").one();
-        assertEquals("__Test Update",postTestUpdateDb.getTitle());
+        assertEquals("__Test Update", postTestUpdateDb.getTitle());
 
         postTestUpdateDb.setContent("test2");
         postService.update(postTestUpdateDb);
-        assertEquals("test2",postTestUpdateDb.getContent());
+        assertEquals("test2", postTestUpdateDb.getContent());
     }
 
     @Test
@@ -72,7 +71,7 @@ class PostServiceTest {
         Post post1 = postLambdaQueryChainWrapper.eq(Post::getTitle, "__Test Delete").one();
 
         postService.delete(post1.getId());
-        assertThrowsExactly(PostNotExistException.class, ()->postService.getById(post1.getId()));
+        assertThrowsExactly(PostNotExistException.class, () -> postService.getById(post1.getId()));
     }
 
     @Test
@@ -98,6 +97,6 @@ class PostServiceTest {
         Post post1 = postLambdaQueryChainWrapper.eq(Post::getTitle, "__Test Get by id").one();
 
         assertEquals("__Test Get by id", postService.getById(post1.getId()).getTitle());
-        assertThrowsExactly(PostNotExistException.class, ()->postService.getById(-1));
+        assertThrowsExactly(PostNotExistException.class, () -> postService.getById(-1));
     }
 }
