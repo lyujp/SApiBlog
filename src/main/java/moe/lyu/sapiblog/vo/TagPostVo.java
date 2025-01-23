@@ -11,7 +11,6 @@ public class TagPostVo {
     private Long tagPostUpdateTime;
 
     private String tagName;
-    private String tagUniqName;
 
     private Integer postAuthorId;
     private String postTitle;

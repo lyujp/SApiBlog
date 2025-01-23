@@ -12,7 +12,6 @@ public class CategoryPostVo {
 
     private String categoryName;
     private Integer categoryParentId;
-    private String categoryUniqName;
 
     private Integer postAuthorId;
     private String postTitle;

@@ -50,7 +50,7 @@ class PostServiceTest {
         post.setContent("test");
         post.setTitle("__Test Update");
         post.setStatus(true);
-        assertEquals(1,postMapper.insert(post));
+        assertNotNull(postService.update(post));
 
         LambdaQueryChainWrapper<Post> postLambdaQueryChainWrapper = new LambdaQueryChainWrapper<>(postMapper);
         Post postTestUpdateDb = postLambdaQueryChainWrapper.likeRight(Post::getTitle, "__Test Update").one();

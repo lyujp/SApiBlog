@@ -16,7 +16,6 @@ public interface CategoryPostDtoMapper extends BaseMapper<CategoryPostVo> {
                    categoryPostTable.update_time AS category_post_update_time,
                    categoryTable.name AS category_name,
                    categoryTable.parent_id AS category_parent_id,
-                   categoryTable.uniq_name AS category_uniq_name,
                    postTable.author_id AS post_author_id,
                    postTable.title AS post_title,
                    postTable.status AS post_status,

@@ -15,8 +15,6 @@ public interface TagPostDtoMapper extends BaseMapper<TagPostVo> {
                    tagPostTable.create_time AS tag_post_create_time,
                    tagPostTable.update_time AS tag_post_update_time,
                    tagTable.name AS tag_name,
-                   tagTable.parent_id AS tag_parent_id,
-                   tagTable.uniq_name AS tag_uniq_name,
                    postTable.author_id AS post_author_id,
                    postTable.title AS post_title,
                    postTable.status AS post_status,
