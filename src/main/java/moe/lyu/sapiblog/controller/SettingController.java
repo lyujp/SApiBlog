@@ -3,6 +3,7 @@ package moe.lyu.sapiblog.controller;
 import moe.lyu.sapiblog.dto.Resp;
 import moe.lyu.sapiblog.dto.SettingDto;
 import moe.lyu.sapiblog.entity.Setting;
+import moe.lyu.sapiblog.exception.SettingNotExistException;
 import moe.lyu.sapiblog.service.SettingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +31,11 @@ public class SettingController {
             return settingDto;
         }).toList();
         return Resp.success(settingDtos);
+    }
+
+    @GetMapping("/get/{k}")
+    public Resp getValue(@PathVariable String k) throws SettingNotExistException {
+        return Resp.success(settingService.get(k));
     }
 
     @GetMapping("/custom")

@@ -86,15 +86,15 @@ class CategoryServiceTest {
     void delete() throws JsonProcessingException {
 
         assertThrowsExactly(CategoryNotFoundException.class, () -> categoryService.delete(9999));
-        assertThrowsExactly(CategoryNotFoundException.class, () -> categoryService.delete("__test Delete"));
-        Category category = categoryService.add("__test Delete 1");
-        Category category2 = categoryService.add("__test Delete 2");
+        assertThrowsExactly(CategoryNotFoundException.class, () -> categoryService.delete("__Test Delete"));
+        Category category = categoryService.add("__Test Delete 1");
+        Category category2 = categoryService.add("__Test Delete 2");
 
         Category categoryDb1 = categoryService.getByName(category.getName());
         Category categoryDb2 = categoryService.getByName(category2.getName());
 
-        assertEquals("__test Delete 1", categoryDb1.getName());
-        assertEquals("__test Delete 2", categoryDb2.getName());
+        assertEquals("__Test Delete 1", categoryDb1.getName());
+        assertEquals("__Test Delete 2", categoryDb2.getName());
         categoryService.delete(category.getName());
         categoryService.delete(category2.getName());
 

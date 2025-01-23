@@ -17,8 +17,4 @@ public class Setting {
     private Long createTime;
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Long updateTime;
-
-    public void setK(String k) {
-        this.k = k.toLowerCase().trim();
-    }
 }
