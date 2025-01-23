@@ -99,7 +99,7 @@ public class CategoryTagPostServiceTest {
     }
 
     @Test
-    void add() throws JsonProcessingException {
+    void add() {
         assertThrowsExactly(PostNotExistException.class, () -> categoryPostService.add(-1, this.categoryAdd.getId()));
         assertThrowsExactly(CategoryNotFoundException.class, () -> categoryPostService.add(this.postAdd.getId(), -1));
 

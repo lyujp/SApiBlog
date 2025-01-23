@@ -31,7 +31,7 @@ public class AuthCheckAspect {
         }
         HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
         String jwt = request.getHeader("Authorization");
-        JwtDto user = null;
+        JwtDto user;
         if (authCheck.jwtDbCheck()) {
             user = userService.jwtDbVerify(jwt);
         } else {

@@ -33,7 +33,7 @@ public class UserController {
 
     @PostMapping("/login")
     public Resp login(@RequestBody UserLoginDto userLoginDto)
-            throws NoSuchAlgorithmException, UserLoginFailed, JsonProcessingException {
+            throws NoSuchAlgorithmException, UserLoginFailed {
         User user =
                 userService.login(userLoginDto.getUsername(), userLoginDto.getPassword(), userLoginDto.getTotp());
         return Resp.success(user.getJwt());
