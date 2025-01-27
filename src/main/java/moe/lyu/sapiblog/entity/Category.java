@@ -17,10 +17,4 @@ public class Category {
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Long updateTime;
 
-    public void setParentId(Integer parentId) {
-        if (parentId == null) {
-            parentId = 0;
-        }
-        this.parentId = parentId;
-    }
 }

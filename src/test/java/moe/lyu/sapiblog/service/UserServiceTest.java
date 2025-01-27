@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWra
 import moe.lyu.sapiblog.dto.JwtDto;
 import moe.lyu.sapiblog.entity.User;
 import moe.lyu.sapiblog.exception.UserJwtVerifyFailedException;
-import moe.lyu.sapiblog.exception.UserLoginFailed;
+import moe.lyu.sapiblog.exception.UserLoginFailedException;
 import moe.lyu.sapiblog.exception.UserRegisterFailedException;
 import moe.lyu.sapiblog.exception.UserUpdateFailedException;
 import moe.lyu.sapiblog.mapper.UserMapper;
@@ -49,10 +49,10 @@ class UserServiceTest {
         User login = userService.login("__testLogin", "123456", null);
         assertNotNull(login);
 
-        assertThrowsExactly(UserLoginFailed.class, () -> userService.login("__testLogin2", "123456", null));
-        assertThrowsExactly(UserLoginFailed.class, () -> userService.login("__testLogin", "1234567", null));
-        assertThrowsExactly(UserLoginFailed.class, () -> userService.login(null, "1234567", null));
-        assertThrowsExactly(UserLoginFailed.class, () -> userService.login("__testLogin", null, null));
+        assertThrowsExactly(UserLoginFailedException.class, () -> userService.login("__testLogin2", "123456", null));
+        assertThrowsExactly(UserLoginFailedException.class, () -> userService.login("__testLogin", "1234567", null));
+        assertThrowsExactly(UserLoginFailedException.class, () -> userService.login(null, "1234567", null));
+        assertThrowsExactly(UserLoginFailedException.class, () -> userService.login("__testLogin", null, null));
 
         assertEquals("__testlogin", login.getUsername());
     }

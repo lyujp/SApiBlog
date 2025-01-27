@@ -18,7 +18,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/tag")
-@AuthCheck()
 public class TagController {
 
     TagService tagService;
@@ -31,7 +30,6 @@ public class TagController {
         this.tagPostService = tagPostService;
     }
 
-    @AuthCheck(skipCheck = true)
     @GetMapping("/list")
     public Resp listAllTags(
             @RequestParam(value = "page", required = false, defaultValue = "1") Integer currentPage,
@@ -43,12 +41,12 @@ public class TagController {
     }
 
     @GetMapping("/list/post_id/{post_id}")
-    @AuthCheck(skipCheck = true)
     public Resp listByPostId(@PathVariable(value = "post_id") Integer postId) {
         List<Tag> categories = tagService.listByPostId(postId);
         return Resp.success(categories);
     }
 
+    @AuthCheck
     @PostMapping("/add")
     public Resp add(@RequestBody Map<String, String> arg)
             throws JsonProcessingException, TagAlreadyExistException, TagAddFailedException, TagUnknownException {
@@ -63,25 +61,28 @@ public class TagController {
 
     }
 
+    @AuthCheck
     @PostMapping("/add/name/{name}")
     public Resp addQuick(@PathVariable String name) throws JsonProcessingException, TagUnknownException {
         Tag added = tagService.add(name);
         return Resp.success(added);
     }
 
+    @AuthCheck
     @PostMapping("/update")
     public Resp update(@RequestBody Tag tag) throws TagNotFoundException, TagUnknownException, JsonProcessingException {
         Tag update = tagService.update(tag);
         return Resp.success(update);
     }
 
+    @AuthCheck
     @PostMapping("/delete/id/{tag_id}")
     public Resp deleteById(@PathVariable Integer tag_id) throws TagNotFoundException {
         tagService.delete(tag_id);
         return Resp.success();
     }
 
-
+    @AuthCheck
     @PostMapping("/delete/name/{name}")
     public Resp deleteByName(@PathVariable String name) throws TagNotFoundException {
         tagService.delete(name);

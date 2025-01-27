@@ -6,10 +6,12 @@ import moe.lyu.sapiblog.dto.Resp;
 import moe.lyu.sapiblog.exception.TagAlreadyExistException;
 import moe.lyu.sapiblog.exception.TagNotFoundException;
 import moe.lyu.sapiblog.exception.TagUnknownException;
+import org.springframework.core.annotation.Order;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice(assignableTypes = {TagController.class})
+@Order(0)
 public class TagControllerHandler {
 
     @ExceptionHandler(TagNotFoundException.class)

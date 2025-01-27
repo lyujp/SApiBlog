@@ -18,7 +18,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/category")
-@AuthCheck()
 public class CategoryController {
 
     CategoryService categoryService;
@@ -31,7 +30,6 @@ public class CategoryController {
         this.categoryPostService = categoryPostService;
     }
 
-    @AuthCheck(skipCheck = true)
     @GetMapping("/list")
     public Resp listAllCategories(
             @RequestParam(value = "page", required = false, defaultValue = "1") Integer currentPage,
@@ -43,26 +41,28 @@ public class CategoryController {
     }
 
     @GetMapping("/list/{post_id}")
-    @AuthCheck(skipCheck = true)
     public Resp listByPostId(@PathVariable(value = "post_id") Integer postId) {
         List<Category> categories = categoryService.listByPostId(postId);
         return Resp.success(categories);
     }
 
     @GetMapping("/get/name/{name}")
-    @AuthCheck(skipCheck = true)
     public Resp getByName(@PathVariable String name) throws CategoryNotFoundException {
         Category category = categoryService.getByName(name);
         return Resp.success(category);
     }
 
+    @AuthCheck
     @PostMapping("/add")
     public Resp add(@RequestBody Map<String, String> arg)
             throws JsonProcessingException, CategoryAlreadyExistException, CategoryAddFailedException, CategoryUnknownException {
         Category category = new Category();
         try {
             category.setName(arg.get("name"));
-            category.setParentId(Integer.parseInt(arg.get("parent_id")));
+            if(arg.get("parent_id") != null) {
+                category.setParentId(Integer.valueOf(arg.get("parent_id")));
+            }
+
         } catch (Exception e) {
             return Resp.error(-200, "Category args is invalid", arg);
         }
@@ -71,24 +71,28 @@ public class CategoryController {
 
     }
 
+    @AuthCheck
     @PostMapping("/add/name/{name}")
     public Resp addQuick(@PathVariable String name) throws JsonProcessingException, CategoryUnknownException, CategoryAddFailedException {
         Category added = categoryService.add(name);
         return Resp.success(added);
     }
 
+    @AuthCheck
     @PostMapping("/update")
     public Resp update(@RequestBody Category category) throws CategoryNotFoundException, CategoryUnknownException, JsonProcessingException {
         Category update = categoryService.update(category);
         return Resp.success(update);
     }
 
+    @AuthCheck(jwtDbCheck = true)
     @PostMapping("/delete/id/{category_id}")
     public Resp deleteById(@PathVariable Integer category_id) throws CategoryNotFoundException {
         categoryService.delete(category_id);
         return Resp.success();
     }
 
+    @AuthCheck(jwtDbCheck = true)
     @PostMapping("/delete/name/{name}")
     public Resp deleteByName(@PathVariable String name) throws CategoryNotFoundException {
         categoryService.delete(name);

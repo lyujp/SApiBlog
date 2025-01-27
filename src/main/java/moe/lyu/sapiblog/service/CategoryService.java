@@ -62,7 +62,7 @@ public class CategoryService {
         LambdaQueryChainWrapper<Category> categoryByNameLambdaQueryWrapper = new LambdaQueryChainWrapper<>(categoryMapper);
         Category categoryByName = categoryByNameLambdaQueryWrapper.eq(Category::getName, category.getName()).one();
         if (categoryByName != null) {
-            return category;
+            return categoryByName;
         }
 
         int insert = categoryMapper.insert(category);

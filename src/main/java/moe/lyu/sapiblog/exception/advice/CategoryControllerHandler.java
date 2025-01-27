@@ -6,10 +6,12 @@ import moe.lyu.sapiblog.dto.Resp;
 import moe.lyu.sapiblog.exception.CategoryAlreadyExistException;
 import moe.lyu.sapiblog.exception.CategoryNotFoundException;
 import moe.lyu.sapiblog.exception.CategoryUnknownException;
+import org.springframework.core.annotation.Order;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice(assignableTypes = {CategoryController.class})
+@Order(0)
 public class CategoryControllerHandler {
 
     @ExceptionHandler(CategoryNotFoundException.class)

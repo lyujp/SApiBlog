@@ -3,10 +3,12 @@ package moe.lyu.sapiblog.exception.advice;
 import moe.lyu.sapiblog.controller.PostController;
 import moe.lyu.sapiblog.dto.Resp;
 import moe.lyu.sapiblog.exception.*;
+import org.springframework.core.annotation.Order;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice(assignableTypes = PostController.class)
+@Order(0)
 public class PostControllerHandler {
 
     @ExceptionHandler(CategoryAddFailedException.class)

@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWra
 import moe.lyu.sapiblog.dto.JwtDto;
 import moe.lyu.sapiblog.entity.User;
 import moe.lyu.sapiblog.exception.UserJwtVerifyFailedException;
-import moe.lyu.sapiblog.exception.UserLoginFailed;
+import moe.lyu.sapiblog.exception.UserLoginFailedException;
 import moe.lyu.sapiblog.exception.UserRegisterFailedException;
 import moe.lyu.sapiblog.exception.UserUpdateFailedException;
 import moe.lyu.sapiblog.mapper.UserMapper;
@@ -32,21 +32,23 @@ public class UserService {
         this.jwtUtils = jwtUtils;
     }
 
-    public User login(String username, String password, String totp) throws NoSuchAlgorithmException, UserLoginFailed {
+    public User login(String username, String password, String totp) throws NoSuchAlgorithmException, UserLoginFailedException {
         if (username == null || password == null || username.isEmpty() || password.isEmpty()) {
-            throw new UserLoginFailed("Username or password is empty");
+            throw new UserLoginFailedException("Username or password is empty");
         }
         username = username.toLowerCase().trim();
         LambdaQueryChainWrapper<User> userLambdaQueryChainWrapper = new LambdaQueryChainWrapper<>(userMapper);
         User userDb = userLambdaQueryChainWrapper.eq(User::getUsername, username).one();
         if (userDb == null) {
-            throw new UserLoginFailed("Username is invalid");
+            throw new UserLoginFailedException("Username is invalid");
         }
 
         String pwd = userDb.getPassword();
         String pwdGenerate = generatePassword(password, userDb.getSalt());
+        System.out.println(pwd);
+        System.out.println(pwdGenerate);
         if (!pwdGenerate.equals(pwd)) {
-            throw new UserLoginFailed("Username or password is invalid");
+            throw new UserLoginFailedException("Username or password is invalid");
         }
 
         userDb.setLastLoginTime();
@@ -63,7 +65,7 @@ public class UserService {
             String payload = jwtUtils.generateJwt(jwtDto);
             userDb.setJwt(payload);
         } catch (Exception e) {
-            throw new UserLoginFailed("Username or password is invalid");
+            throw new UserLoginFailedException("Username or password is invalid");
         }
 
 

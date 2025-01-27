@@ -26,9 +26,6 @@ public class AuthCheckAspect {
 
     @Before("@annotation(authCheck)")
     public void check(AuthCheck authCheck) throws UserJwtVerifyFailedException {
-        if (authCheck.skipCheck()) {
-            return;
-        }
         HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
         String jwt = request.getHeader("Authorization");
         JwtDto user;

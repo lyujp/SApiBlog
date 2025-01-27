@@ -1,5 +1,6 @@
 package moe.lyu.sapiblog.controller;
 
+import moe.lyu.sapiblog.annotation.AuthCheck;
 import moe.lyu.sapiblog.dto.Resp;
 import moe.lyu.sapiblog.dto.SettingDto;
 import moe.lyu.sapiblog.entity.Setting;
@@ -51,6 +52,7 @@ public class SettingController {
     }
 
     @PostMapping("/update")
+    @AuthCheck
     public Resp updateSetting(@RequestBody List<SettingDto> settingDtos) {
         List<Setting> settings = settingDtos.stream().map(settingDto -> {
             Setting setting = new Setting();
