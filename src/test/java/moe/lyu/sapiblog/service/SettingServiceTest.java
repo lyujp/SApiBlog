@@ -10,7 +10,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -35,38 +37,26 @@ class SettingServiceTest {
 
     @Test
     void list() {
-        Setting setting = new Setting();
-        setting.setK("__Test List");
-        setting.setV("list");
-        settingService.update(List.of(setting));
+        settingService.update(Map.of("__Test List","list"));
 
-        List<String> list = settingService.list(false).stream().map(Setting::getK).toList();
+        List<String> list = settingService.list(true).stream().map(Setting::getK).toList();
         assertTrue(list.contains("__Test List"));
     }
 
     @Test
     void update() {
-        Setting setting = new Setting();
-        setting.setK("__Test Update");
-        setting.setV("update");
-        settingService.update(List.of(setting));
-
-
+        settingService.update(Map.of("__Test Update","update"));
         String testUpdate = settingService.getValue("__Test Update");
         assertEquals("update", testUpdate);
 
-        setting.setV("update2");
-        settingService.update(List.of(setting));
+        settingService.update(Map.of("__Test Update","update2"));
         testUpdate = settingService.getValue("__Test Update");
         assertEquals("update2", testUpdate);
     }
 
     @Test
     void getValue() {
-        Setting setting = new Setting();
-        setting.setK("__Test Get value");
-        setting.setV("get value");
-        settingService.update(List.of(setting));
+        settingService.update(Map.of("__Test Get value","get value"));
 
         assertEquals("get value", settingService.getValue("__Test Get value"));
         assertThrowsExactly(SettingNotExistException.class, () -> settingService.getValue("__Test Get value null"));
@@ -74,10 +64,7 @@ class SettingServiceTest {
 
     @Test
     void get() {
-        Setting setting = new Setting();
-        setting.setK("__Test Get");
-        setting.setV("get");
-        settingService.update(List.of(setting));
+        settingService.update(Map.of("__Test Get","get"));
 
         assertEquals("get", settingService.getValue("__Test Get"));
         assertThrowsExactly(SettingNotExistException.class, () -> settingService.getValue("__Test Get null"));

@@ -2,14 +2,15 @@ package moe.lyu.sapiblog.controller;
 
 import moe.lyu.sapiblog.annotation.AuthCheck;
 import moe.lyu.sapiblog.dto.Resp;
-import moe.lyu.sapiblog.dto.SettingDto;
 import moe.lyu.sapiblog.entity.Setting;
 import moe.lyu.sapiblog.exception.SettingNotExistException;
 import moe.lyu.sapiblog.service.SettingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/setting")
@@ -25,13 +26,9 @@ public class SettingController {
     @GetMapping("/system")
     public Resp getSystemSetting() {
         List<Setting> settings = settingService.list(false);
-        List<SettingDto> settingDtos = settings.stream().map(setting -> {
-            SettingDto settingDto = new SettingDto();
-            settingDto.setK(setting.getK());
-            settingDto.setV(setting.getV());
-            return settingDto;
-        }).toList();
-        return Resp.success(settingDtos);
+        Map<String,String> map = new HashMap<>();
+        settings.forEach(setting -> map.put(setting.getK(), setting.getV()));
+        return Resp.success(map);
     }
 
     @GetMapping("/get/{k}")
@@ -42,24 +39,14 @@ public class SettingController {
     @GetMapping("/custom")
     public Resp getCustomSetting() {
         List<Setting> settings = settingService.list(true);
-        List<SettingDto> settingDtos = settings.stream().map(setting -> {
-            SettingDto settingDto = new SettingDto();
-            settingDto.setK(setting.getK());
-            settingDto.setV(setting.getV());
-            return settingDto;
-        }).toList();
-        return Resp.success(settingDtos);
+        Map<String,String> map = new HashMap<>();
+        settings.forEach(setting -> map.put(setting.getK(), setting.getV()));
+        return Resp.success(map);
     }
 
     @PostMapping("/update")
     @AuthCheck
-    public Resp updateSetting(@RequestBody List<SettingDto> settingDtos) {
-        List<Setting> settings = settingDtos.stream().map(settingDto -> {
-            Setting setting = new Setting();
-            setting.setK(settingDto.getK());
-            setting.setV(settingDto.getV());
-            return setting;
-        }).toList();
+    public Resp updateSetting(@RequestBody Map<String,String> settings) {
         settingService.update(settings);
         return Resp.success();
     }
