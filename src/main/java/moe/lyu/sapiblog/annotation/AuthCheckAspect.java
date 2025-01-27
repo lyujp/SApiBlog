@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.management.relation.Role;
 import java.util.Objects;
 
 @Component
@@ -37,5 +38,10 @@ public class AuthCheckAspect {
         if (user == null) {
             throw new UserJwtVerifyFailedException("Jwt is invalid");
         }
+        String role = authCheck.role();
+        if(role.equals("ADMIN") && !user.getRole().equals("ADMIN")){
+            throw new UserJwtVerifyFailedException("You are not allowed to access this method");
+        }
+
     }
 }

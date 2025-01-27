@@ -131,11 +131,7 @@ public class UserService {
         return userDb == null;
     }
 
-    public void update(User user, String jwt) throws UserUpdateFailedException, NoSuchAlgorithmException {
-        JwtDto userInToken = jwtDbVerify(jwt);
-        if (userInToken == null || !Objects.equals(userInToken.getUserId(), user.getId())) {
-            throw new UserUpdateFailedException("You can only update your own user");
-        }
+    public void update(User user) throws UserUpdateFailedException, NoSuchAlgorithmException {
         if (user.getPassword() != null && !user.getPassword().isEmpty()) {
             String salt = UUID.randomUUID().toString();
             user.setSalt(salt);

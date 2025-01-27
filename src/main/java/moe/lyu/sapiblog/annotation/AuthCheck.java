@@ -12,4 +12,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AuthCheck {
     boolean jwtDbCheck() default false;
+
+    String role() default "USER";
+
 }
