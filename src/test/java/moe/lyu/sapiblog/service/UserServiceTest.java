@@ -114,8 +114,6 @@ class UserServiceTest {
         user.setRole("USER");
         userService.register(user);
 
-        User testUpdate = userService.login("__testUpdate", "123456", null);
-
         LambdaQueryChainWrapper<User> lambdaQueryChainWrapper = new LambdaQueryChainWrapper<>(userMapper);
         User userDb = lambdaQueryChainWrapper.eq(User::getUsername, user.getUsername()).one();
 
@@ -127,7 +125,7 @@ class UserServiceTest {
         userDb.setPhone("1234562");
         userDb.setTotp("totp2");
         userDb.setRole("ADMIN");
-        userService.update(userDb, testUpdate.getJwt());
+        userService.update(userDb);
 
         LambdaQueryChainWrapper<User> userUpdatedLambdaQueryChainWrapper = new LambdaQueryChainWrapper<>(userMapper);
         User userUpdated = userUpdatedLambdaQueryChainWrapper.eq(User::getUsername, userDb.getUsername()).one();
@@ -142,7 +140,7 @@ class UserServiceTest {
         assertEquals(userDb.getRole(), userUpdated.getRole());
 
         userDb.setId(-1);
-        assertThrowsExactly(UserUpdateFailedException.class, () -> userService.update(userDb, userDb.getJwt()));
+        assertThrowsExactly(UserUpdateFailedException.class, () -> userService.update(userDb));
     }
 
     @Test
